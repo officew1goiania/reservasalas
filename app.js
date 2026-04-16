@@ -326,6 +326,8 @@ async function fetchEvents(info, successCallback, failureCallback) {
         return;
     }
 
+    console.log("Reservas brutas do banco:", data);
+
     const events = data.map(res => ({
         id: res.id,
         title: `Sala ${res.room_number} — ${res.profiles?.full_name || 'Reservado'}`,
@@ -334,6 +336,8 @@ async function fetchEvents(info, successCallback, failureCallback) {
         backgroundColor: getRoomColor(res.room_number),
         extendedProps: { user_id: res.user_id, room_number: res.room_number }
     }));
+    
+    console.log("Eventos formatados para o calendário:", events);
     successCallback(events);
 }
 
