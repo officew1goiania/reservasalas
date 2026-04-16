@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>W1 Goiânia - Reserva de Salas</title>
+    <meta name="description" content="Sistema de reserva de salas W1 Goiânia - Gerencie reservas e usuários">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ============ TOAST CONTAINER ============ -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ============ LOGIN SCREEN ============ -->
+    <div id="login-screen" class="screen">
+        <div class="login-card">
+            <div class="brand-icon">W1</div>
+            <h1>W1 Goiânia</h1>
+            <p class="subtitle">Sistema de Reserva de Salas</p>
+
+            <div id="login-error" class="error-message"></div>
+
+            <div class="form-group">
+                <span class="input-icon">✉</span>
+                <input type="email" id="login-email" placeholder="E-mail profissional">
+            </div>
+            <div class="form-group">
+                <span class="input-icon">🔒</span>
+                <input type="password" id="login-password" placeholder="Senha">
+            </div>
+            <button class="btn btn-primary btn-full" id="btn-login" onclick="handleLogin()">
+                Entrar
+            </button>
+
+            <div class="login-divider">
+                <span>ou</span>
+            </div>
+
+            <button class="btn btn-google btn-full" onclick="loginWithGoogle()">
+                <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24s.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                Entrar com Google
+            </button>
+        </div>
+    </div>
+
+    <!-- ============ APP SCREEN ============ -->
+    <div id="app-screen" class="screen" style="display: none;">
+
+        <!-- Mobile Overlay -->
+        <div class="mobile-overlay" id="mobile-overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-dot">W1</div>
+                <h2>W1 Goiânia <small>Reservas</small></h2>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-page="agenda" onclick="navigateTo('agenda')">
+                    <span class="nav-icon">📅</span> Agenda
+                </button>
+                <button class="nav-item" data-page="usuarios" id="nav-usuarios" onclick="navigateTo('usuarios')" style="display:none;">
+                    <span class="nav-icon">👥</span> Usuários
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-avatar" id="sidebar-avatar"></div>
+                    <div class="user-details">
+                        <div class="user-name" id="sidebar-user-name">—</div>
+                        <div class="user-role" id="sidebar-user-role">—</div>
+                    </div>
+                </div>
+                <button class="btn btn-secondary btn-sm btn-full" onclick="logout()">
+                    Sair
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Mobile Header -->
+            <div class="mobile-header" style="display:none;">
+                <button class="hamburger" onclick="toggleSidebar()">☰</button>
+                <span style="font-weight:600;">W1 Goiânia</span>
+            </div>
+
+            <!-- ====== PAGE: AGENDA ====== -->
+            <div id="page-agenda" class="page-content">
+                <div class="page-header">
+                    <h1>Agenda <span>de Reservas</span></h1>
+                    <button class="btn btn-primary" id="btn-nova-reserva" onclick="openBookingModal()">
+                        + Nova Reserva
+                    </button>
+                </div>
+                <div class="calendar-wrapper">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+
+            <!-- ====== PAGE: USUÁRIOS ====== -->
+            <div id="page-usuarios" class="page-content hidden">
+                <div class="page-header">
+                    <h1>Usuários <span id="users-count"></span></h1>
+                    <button class="btn btn-gold" onclick="openUserModal()">
+                        + Novo Usuário
+                    </button>
+                </div>
+
+                <div class="users-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Total</div>
+                        <div class="stat-value" id="stat-total">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Ativos</div>
+                        <div class="stat-value" id="stat-active">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Admins</div>
+                        <div class="stat-value" id="stat-admins">0</div>
+                    </div>
+                </div>
+
+                <div class="users-table-wrapper">
+                    <div class="users-table-header">
+                        <h3>Todos os Usuários</h3>
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="user-search" placeholder="Buscar por nome ou email..." oninput="filterUsers()">
+                        </div>
+                    </div>
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Usuário</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state">
+                                        <div class="empty-icon">👥</div>
+                                        <p>Carregando usuários...</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: RESERVA ============ -->
+    <div id="booking-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>📅 Reservar Sala</h3>
+            <div class="form-row">
+                <label>Sala</label>
+                <select id="room-select"></select>
+            </div>
+            <div class="form-row">
+                <label>Início</label>
+                <input type="datetime-local" id="start-time">
+            </div>
+            <div class="form-row">
+                <label>Fim</label>
+                <input type="datetime-local" id="end-time">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeBookingModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveReservation()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: CRIAR/EDITAR USUÁRIO ============ -->
+    <div id="user-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="user-modal-title">👤 Novo Usuário</h3>
+
+            <div class="form-row">
+                <label>Nome Completo</label>
+                <input type="text" id="user-fullname" placeholder="Nome do usuário">
+            </div>
+
+            <div id="user-email-row" class="form-row">
+                <label>E-mail</label>
+                <input type="email" id="user-email" placeholder="email@empresa.com">
+            </div>
+
+            <div id="user-password-row" class="form-row">
+                <label>Senha</label>
+                <input type="password" id="user-password" placeholder="Senha (min. 6 caracteres)">
+            </div>
+
+            <div class="form-row-half">
+                <div>
+                    <label>Role</label>
+                    <select id="user-role">
+                        <option value="bp">BP</option>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Status</label>
+                    <select id="user-status">
+                        <option value="active">Ativo</option>
+                        <option value="inactive">Inativo</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeUserModal()">Cancelar</button>
+                <button class="btn btn-gold" id="btn-save-user" onclick="saveUser()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: CONFIRMAÇÃO ============ -->
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 400px;">
+            <h3 id="confirm-title">⚠️ Confirmar</h3>
+            <p class="confirm-text" id="confirm-text"></p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancelar</button>
+                <button class="btn btn-danger" id="btn-confirm-action">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
