@@ -169,6 +169,13 @@ body {
     margin-bottom: 2rem;
 }
 
+.login-instruction {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    margin-bottom: 2.2rem;
+    line-height: 1.5;
+}
+
 .login-card .error-message {
     background: rgba(239, 68, 68, 0.12);
     border: 1px solid rgba(239, 68, 68, 0.3);
@@ -319,6 +326,11 @@ label {
     color: var(--text-primary);
     border: 1px solid var(--border);
     gap: 0.6rem;
+}
+
+.btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
 }
 
 .btn-google:hover {
@@ -1108,6 +1120,97 @@ table.users-table tbody tr:last-child td {
     .mobile-overlay {
         display: none !important;
     }
+}
+
+/* ===========================================
+   ROOMS PAGE
+   =========================================== */
+.rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.room-card {
+    background: var(--bg-glass);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    transition: all var(--transition);
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 0.5s ease both;
+}
+
+.room-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--border-focus);
+    box-shadow: var(--shadow-md);
+}
+
+.room-card.featured {
+    border-color: var(--gold);
+    background: linear-gradient(135deg, rgba(212, 168, 83, 0.05), rgba(255, 255, 255, 0.03));
+}
+
+.room-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.room-number {
+    width: 42px;
+    height: 42px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: var(--teal-light);
+    font-size: 1.1rem;
+}
+
+.room-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.room-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+.f-icon {
+    font-size: 1rem;
+}
+
+.badge-gold {
+    background: rgba(212, 168, 83, 0.15);
+    color: var(--gold);
+    font-size: 0.62rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    font-weight: 700;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
 }
 
 /* ---------- Utility ---------- */

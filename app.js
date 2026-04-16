@@ -50,73 +50,6 @@ function toast(message, type = 'info') {
 // =============================================
 //  AUTH – LOGIN / LOGOUT
 // =============================================
-async function handleLogin() {
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-    const errorEl = document.getElementById('login-error');
-    const btn = document.getElementById('btn-login');
-
-    errorEl.classList.remove('visible');
-
-    if (!email || !password) {
-        errorEl.textContent = 'Preencha e-mail e senha.';
-        errorEl.classList.add('visible');
-        return;
-    }
-
-    btn.classList.add('btn-loading');
-    btn.disabled = true;
-
-    try {
-        // Permitir que o Admin logue sempre para não trancar o sistema fora,
-        // mas validar usuários comuns antes no banco
-        let isValidUser = false;
-
-        if (email === ADMIN_EMAIL) {
-            isValidUser = true;
-        } else {
-            const { data: profile, error: profileError } = await _supabase
-                .from('profiles')
-                .select('*')
-                .eq('email', email)
-                .single();
-
-            if (!profileError && profile) {
-                if (profile.status === 'inactive') {
-                    errorEl.textContent = 'Sua conta está desativada. Contate o administrador.';
-                    errorEl.classList.add('visible');
-                    btn.classList.remove('btn-loading');
-                    btn.disabled = false;
-                    return;
-                }
-                isValidUser = true;
-            }
-        }
-
-        if (!isValidUser) {
-            errorEl.textContent = 'Usuário não cadastrado. Contate o administrador.';
-            errorEl.classList.add('visible');
-            btn.classList.remove('btn-loading');
-            btn.disabled = false;
-            return;
-        }
-
-        // 2. Fazer login no Supabase Auth
-        const { error } = await _supabase.auth.signInWithPassword({ email, password });
-
-        if (error) {
-            errorEl.textContent = 'E-mail ou senha incorretos.';
-            errorEl.classList.add('visible');
-        }
-    } catch (err) {
-        errorEl.textContent = 'Erro inesperado. Tente novamente.';
-        errorEl.classList.add('visible');
-        console.error(err);
-    }
-
-    btn.classList.remove('btn-loading');
-    btn.disabled = false;
-}
 
 async function loginWithGoogle() {
     // Redirecionamento dinâmico para garantir compatibilidade com GitHub Pages
@@ -147,14 +80,7 @@ async function logout() {
     if (calendar) { calendar.destroy(); calendar = null; }
 }
 
-// Allow Enter key to submit login
-document.addEventListener('DOMContentLoaded', () => {
-    const loginFields = ['login-email', 'login-password'];
-    loginFields.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
-    });
-});
+
 
 // =============================================
 //  AUTH STATE CHANGE
