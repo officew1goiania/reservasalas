@@ -12,9 +12,7 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     auth: {
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: true,
-        flowType: 'implicit',
-        lock: { enabled: false }
+        detectSessionInUrl: true
     }
 });
 
@@ -111,13 +109,20 @@ async function handleLogin() {
 }
 
 async function loginWithGoogle() {
+    // Redirecionamento dinâmico para garantir compatibilidade com GitHub Pages
+    const redirectUrl = window.location.origin + window.location.pathname;
+    
+    console.log("Iniciando Login Google. Redirecionando para:", redirectUrl);
+
     const { error } = await _supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: window.location.origin + window.location.pathname
+            redirectTo: redirectUrl
         }
     });
+
     if (error) {
+        console.error("Erro Google Login:", error);
         const errorEl = document.getElementById('login-error');
         errorEl.textContent = 'Erro ao conectar com Google: ' + error.message;
         errorEl.classList.add('visible');
