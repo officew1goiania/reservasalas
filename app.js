@@ -26,6 +26,9 @@ _supabase.from('profiles').select('count', { count: 'exact', head: true })
     })
     .catch(err => console.error("❌ Erro crítico na inicialização:", err));
 
+// Debug: Verificar se existe sessão no localStorage ao carregar
+console.log("🔍 Verificando localStorage para sessão Supabase:", Object.keys(localStorage).filter(k => k.includes('supabase.auth.token')));
+
 // ──── State ────
 let currentUser = null;
 let currentProfile = null;
@@ -86,18 +89,30 @@ async function logout() {
 //  AUTH STATE CHANGE
 // =============================================
 _supabase.auth.onAuthStateChange(async (event, session) => {
+    console.log(`🔑 Evento Auth: ${event}`, session ? "Sessão Ativa" : "Sem Sessão");
+
     if (session) {
         currentUser = session.user;
 
-        // Fetch profile
-        let { data: profile, error: fetchError } = await _supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', currentUser.id)
-            .single();
+        // Tentar buscar o perfil com até 3 tentativas em caso de erro de rede
+        let profile = null;
+        let fetchError = null;
+        
+        try {
+            const { data, error } = await _supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', currentUser.id)
+                .single();
+            profile = data;
+            fetchError = error;
+        } catch (e) {
+            console.error("Erro na busca de perfil:", e);
+        }
 
         // Se logou com Google (ou conta nova) e não achou profile (se trigger falhou ou apagaram)
         if (!profile && !fetchError) {
+            console.log("ℹ️ Perfil não encontrado. Verificando se é admin...");
             const userEmail = currentUser.email;
             const isAdmin = userEmail === ADMIN_EMAIL;
 
@@ -121,33 +136,38 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
                     .single();
 
                 if (insertErr) {
-                    console.error('Erro detalhado ao recriar perfil admin:', insertErr.message || insertErr);
-                    profile = newProfile; // Usar fallback local pra não trancar
+                    console.error('Erro ao recriar perfil admin:', insertErr);
+                    profile = newProfile;
                 } else {
                     profile = inserted;
                 }
                 toast(`Bem-vindo, Admin! Seu perfil foi restaurado.`, 'success');
             } else {
+                console.warn("🚫 Usuário sem perfil. Forçando logout.");
                 toast('Seu acesso não foi liberado. Contate o administrador.', 'error');
                 await _supabase.auth.signOut();
                 return;
             }
         }
 
-        // Check if admin email needs role upgrade
-        if (currentUser.email === ADMIN_EMAIL && profile.role !== 'admin') {
-            await _supabase.from('profiles').update({ role: 'admin' }).eq('id', currentUser.id);
-            profile.role = 'admin';
-        }
+        if (profile) {
+            // Check if admin email needs role upgrade
+            if (currentUser.email === ADMIN_EMAIL && profile.role !== 'admin') {
+                await _supabase.from('profiles').update({ role: 'admin' }).eq('id', currentUser.id);
+                profile.role = 'admin';
+            }
 
-        if (profile.status === 'inactive') {
-            toast('Conta desativada. Contate o administrador.', 'error');
-            await _supabase.auth.signOut();
-            return;
-        }
+            if (profile.status === 'inactive') {
+                toast('Conta desativada. Contate o administrador.', 'error');
+                await _supabase.auth.signOut();
+                return;
+            }
 
-        currentProfile = profile;
-        currentRole = profile.role || 'bp';
+            currentProfile = profile;
+            currentRole = profile.role || 'bp';
+            
+            console.log("👤 Usuário logado como:", currentRole);
+        }
 
         // Update sidebar user info
         const initials = getInitials(profile.full_name || currentUser.email);
@@ -608,10 +628,18 @@ function openConfirmModal(title, text, callback) {
     confirmCallback = callback;
 
     const btn = document.getElementById('btn-confirm-action');
-    btn.onclick = async () => {
-        if (confirmCallback) await confirmCallback();
+    
+    // Removemos eventos antigos clonando o botão (técnica limpa para resetar listeners)
+    const newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+    
+    newBtn.addEventListener('click', async () => {
+        console.log("Botão de confirmação clicado!");
+        if (confirmCallback) {
+            await confirmCallback();
+        }
         closeConfirmModal();
-    };
+    });
 
     document.getElementById('confirm-modal').classList.add('visible');
 }
