@@ -578,9 +578,18 @@ label {
 /* ---------- Page Header ---------- */
 .page-header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    margin-bottom: 1.5rem;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.page-header-inner {
     animation: fadeIn 0.5s ease;
 }
 
@@ -1066,8 +1075,14 @@ table.users-table tbody tr:last-child td {
 
     .page-header {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
     }
 
     .users-table-header {
@@ -1091,6 +1106,10 @@ table.users-table tbody tr:last-child td {
     }
 
     .modal-box .form-row-half {
+        grid-template-columns: 1fr;
+    }
+
+    .rooms-grid {
         grid-template-columns: 1fr;
     }
 

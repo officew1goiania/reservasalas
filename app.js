@@ -333,6 +333,16 @@ async function handleEventClick(info) {
     );
 }
 
+function refreshCalendar() {
+    if (calendar) {
+        const btn = document.getElementById('btn-refresh-calendar');
+        btn.classList.add('rotating');
+        calendar.refetchEvents();
+        setTimeout(() => btn.classList.remove('rotating'), 800);
+        toast('Agenda atualizada', 'success');
+    }
+}
+
 // =============================================
 //  BOOKING MODAL
 // =============================================
