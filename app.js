@@ -314,12 +314,20 @@ async function handleEventClick(info) {
         'Cancelar Reserva',
         `Deseja cancelar a reserva <span class="confirm-highlight">${event.title}</span>?`,
         async () => {
-            const { error } = await _supabase.from('reservations').delete().eq('id', event.id);
-            if (error) {
-                toast('Erro ao cancelar: ' + error.message, 'error');
-            } else {
-                toast('Reserva cancelada.', 'success');
-                calendar.refetchEvents();
+            console.log("Iniciando exclusão da reserva ID:", event.id);
+            try {
+                const { error } = await _supabase.from('reservations').delete().eq('id', event.id);
+                if (error) {
+                    console.error("Erro Supabase Delete:", error);
+                    toast('Erro ao cancelar: ' + error.message, 'error');
+                } else {
+                    console.log("Reserva excluída com sucesso.");
+                    toast('Reserva cancelada.', 'success');
+                    if (calendar) calendar.refetchEvents();
+                }
+            } catch (err) {
+                console.error("Erro inesperado ao deletar:", err);
+                toast('Erro técnico ao cancelar. Verifique o console.', 'error');
             }
         }
     );
@@ -634,11 +642,16 @@ function openConfirmModal(title, text, callback) {
     btn.parentNode.replaceChild(newBtn, btn);
     
     newBtn.addEventListener('click', async () => {
-        console.log("Botão de confirmação clicado!");
-        if (confirmCallback) {
-            await confirmCallback();
+        console.log("Botão de confirmação clicado! Executando callback...");
+        try {
+            if (confirmCallback) {
+                await confirmCallback();
+            }
+        } catch (error) {
+            console.error("Erro no callback de confirmação:", error);
+        } finally {
+            closeConfirmModal();
         }
-        closeConfirmModal();
     });
 
     document.getElementById('confirm-modal').classList.add('visible');
