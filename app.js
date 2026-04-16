@@ -306,6 +306,7 @@ function initCalendar() {
         slotMaxTime: "22:00:00",
         allDaySlot: false,
         height: 'auto',
+        timeZone: 'local', // Garante que as datas sejam interpretadas no horário local
         events: fetchEvents,
         eventClick: handleEventClick
     });
@@ -326,8 +327,6 @@ async function fetchEvents(info, successCallback, failureCallback) {
         return;
     }
 
-    console.log("Reservas brutas do banco:", data);
-
     const events = data.map(res => ({
         id: res.id,
         title: `Sala ${res.room_number} — ${res.profiles?.full_name || 'Reservado'}`,
@@ -337,7 +336,6 @@ async function fetchEvents(info, successCallback, failureCallback) {
         extendedProps: { user_id: res.user_id, room_number: res.room_number }
     }));
     
-    console.log("Eventos formatados para o calendário:", events);
     successCallback(events);
 }
 
@@ -407,8 +405,12 @@ async function saveReservation() {
     if (!room || !start || !end) return toast("Preencha todos os campos.", "error");
     if (new Date(start) >= new Date(end)) return toast("O horário de fim deve ser após o início.", "error");
 
+    // Converte os horários locais do formulário para ISO Strings (UTC) antes de salvar
+    const startISO = new Date(start).toISOString();
+    const endISO = new Date(end).toISOString();
+
     const { error } = await _supabase.from('reservations').insert([
-        { user_id: currentUser.id, room_number: parseInt(room), start_time: start, end_time: end }
+        { user_id: currentUser.id, room_number: parseInt(room), start_time: startISO, end_time: endISO }
     ]);
 
     if (error) {
