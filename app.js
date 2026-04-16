@@ -8,13 +8,16 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const ADMIN_EMAIL = 'paulograciano.w1@gmail.com';
 
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-    auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-    }
-});
+// Inicialização básica (mais estável para CDN)
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// Teste de conexão imediato
+_supabase.from('profiles').select('count', { count: 'exact', head: true })
+    .then(({ error }) => {
+        if (error) console.error("⚠️ Teste de conexão falhou:", error.message || error);
+        else console.log("✅ Conexão com Supabase estabelecida com sucesso.");
+    })
+    .catch(err => console.error("❌ Erro crítico na inicialização:", err));
 
 // ──── State ────
 let currentUser = null;
@@ -111,7 +114,7 @@ async function handleLogin() {
 async function loginWithGoogle() {
     // Redirecionamento dinâmico para garantir compatibilidade com GitHub Pages
     const redirectUrl = window.location.origin + window.location.pathname;
-    
+
     console.log("Iniciando Login Google. Redirecionando para:", redirectUrl);
 
     const { error } = await _supabase.auth.signInWithOAuth({
@@ -166,10 +169,10 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
             const isAdmin = userEmail === ADMIN_EMAIL;
 
             if (isAdmin) {
-                const userName = currentUser.user_metadata?.full_name 
-                              || currentUser.user_metadata?.name 
-                              || userEmail.split('@')[0];
-                
+                const userName = currentUser.user_metadata?.full_name
+                    || currentUser.user_metadata?.name
+                    || userEmail.split('@')[0];
+
                 const newProfile = {
                     id: currentUser.id,
                     full_name: userName,
@@ -185,7 +188,7 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
                     .single();
 
                 if (insertErr) {
-                    console.error('Erro ao recriar perfil admin:', insertErr);
+                    console.error('Erro detalhado ao recriar perfil admin:', insertErr.message || insertErr);
                     profile = newProfile; // Usar fallback local pra não trancar
                 } else {
                     profile = inserted;
@@ -318,7 +321,7 @@ async function fetchEvents(info, successCallback, failureCallback) {
         `);
 
     if (error) {
-        console.error(error);
+        console.error("Erro ao buscar reservas:", error.message || error);
         failureCallback(error);
         return;
     }
@@ -583,9 +586,9 @@ async function saveUser() {
 
             if (signUpError) {
                 if (signUpError.message.includes('User already registered')) {
-                     toast('Usuário já cadastrado no Auth.', 'error');
+                    toast('Usuário já cadastrado no Auth.', 'error');
                 } else {
-                     throw signUpError;
+                    throw signUpError;
                 }
                 btn.classList.remove('btn-loading');
                 btn.disabled = false;
