@@ -236,6 +236,11 @@ select {
     background-position: right 12px center;
 }
 
+select option {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+}
+
 textarea {
     padding-left: 0.8rem;
     min-height: 80px;

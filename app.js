@@ -9,7 +9,14 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const ADMIN_EMAIL = 'paulograciano.w1@gmail.com';
 
 // Inicialização básica (mais estável para CDN)
-const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: {
+        storage: window.localStorage,
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+    }
+});
 
 // Teste de conexão imediato
 _supabase.from('profiles').select('count', { count: 'exact', head: true })
@@ -157,14 +164,14 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
         currentUser = session.user;
 
         // Fetch profile
-        let { data: profile } = await _supabase
+        let { data: profile, error: fetchError } = await _supabase
             .from('profiles')
             .select('*')
             .eq('id', currentUser.id)
             .single();
 
         // Se logou com Google (ou conta nova) e não achou profile (se trigger falhou ou apagaram)
-        if (!profile) {
+        if (!profile && !fetchError) {
             const userEmail = currentUser.email;
             const isAdmin = userEmail === ADMIN_EMAIL;
 
@@ -405,9 +412,18 @@ async function saveReservation() {
     if (!room || !start || !end) return toast("Preencha todos os campos.", "error");
     if (new Date(start) >= new Date(end)) return toast("O horário de fim deve ser após o início.", "error");
 
-    // Converte os horários locais do formulário para ISO Strings (UTC) antes de salvar
-    const startISO = new Date(start).toISOString();
-    const endISO = new Date(end).toISOString();
+    // Converte os horários locais do formulário para o formato ISO preservando o fuso local
+    const getLocalISO = (dateStr) => {
+        const d = new Date(dateStr);
+        const offset = -d.getTimezoneOffset();
+        const sign = offset >= 0 ? '+' : '-';
+        const hours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0');
+        const mins = (Math.abs(offset) % 60).toString().padStart(2, '0');
+        return `${dateStr}:00${sign}${hours}:${mins}`;
+    };
+
+    const startISO = getLocalISO(start);
+    const endISO = getLocalISO(end);
 
     const { error } = await _supabase.from('reservations').insert([
         { user_id: currentUser.id, room_number: parseInt(room), start_time: startISO, end_time: endISO }
