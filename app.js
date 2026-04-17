@@ -1,7 +1,7 @@
-// =============================================
 //  W1 Goiânia – Reservas  (app.js)
-//  Auth · Navegação · Reservas · CRUD Usuários
+//  v7 - Fix Login Crash & Resilience
 // =============================================
+console.log("🚀 App loading - Version 7");
 
 const SUPABASE_URL = 'https://dicavscewjdvxceqbtbk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpY2F2c2Nld2pkdnhjZXFidGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyOTc2NTMsImV4cCI6MjA5MTg3MzY1M30.qD-jTm9cCB2axOXqbMzicBZ8zQzy8n5uGGtYwguDwks';
@@ -218,21 +218,25 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
         }
 
         // Update sidebar user info
-        const userName = profile.full_name || currentUser.email || 'Usuário';
-        const initials = getInitials(userName);
-        
-        const avatarEl = document.getElementById('sidebar-avatar');
-        const nameEl = document.getElementById('sidebar-user-name');
-        const roleEl = document.getElementById('sidebar-user-role');
+        if (profile) {
+            const userName = profile.full_name || currentUser.email || 'Usuário';
+            const initials = getInitials(userName);
+            
+            const avatarEl = document.getElementById('sidebar-avatar');
+            const nameEl = document.getElementById('sidebar-user-name');
+            const roleEl = document.getElementById('sidebar-user-role');
 
-        if (avatarEl) avatarEl.textContent = initials;
-        if (nameEl) nameEl.textContent = userName;
-        if (roleEl) roleEl.textContent = (currentRole || 'USER').toUpperCase();
+            if (avatarEl) avatarEl.textContent = initials;
+            if (nameEl) nameEl.textContent = userName;
+            if (roleEl) roleEl.textContent = (currentRole || 'USER').toUpperCase();
 
-        // Show/hide admin nav
-        const navUsuarios = document.getElementById('nav-usuarios');
-        if (navUsuarios) {
-            navUsuarios.style.display = (currentRole === 'admin') ? 'flex' : 'none';
+            // Show/hide admin nav
+            const navUsuarios = document.getElementById('nav-usuarios');
+            if (navUsuarios) {
+                navUsuarios.style.display = (currentRole === 'admin') ? 'flex' : 'none';
+            }
+        } else {
+            console.error("❌ Erro fatal: Tentativa de atualizar UI sem perfil carregado.");
         }
 
         // Switch screens
