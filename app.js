@@ -18,6 +18,21 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
     }
 });
 
+// Cliente auxiliar para criação de usuários (evita deslogar o admin)
+let _signUpClient = null;
+function getSignUpClient() {
+    if (!_signUpClient) {
+        _signUpClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            auth: { 
+                persistSession: false, 
+                autoRefreshToken: false, 
+                detectSessionInUrl: false 
+            }
+        });
+    }
+    return _signUpClient;
+}
+
 // Teste de conexão imediato
 _supabase.from('profiles').select('count', { count: 'exact', head: true })
     .then(({ error }) => {
@@ -247,6 +262,9 @@ function navigateTo(page) {
         if (page === 'usuarios' && currentRole === 'admin') {
             loadUsers();
         }
+        if (page === 'salas') {
+            renderRooms();
+        }
 
         // Close mobile sidebar
         closeSidebar();
@@ -432,13 +450,31 @@ async function saveReservation() {
         const startISO = getLocalISO(start);
         const endISO = getLocalISO(end);
 
+        // --- NOVO: Verificação de Conflito Manual ---
+        console.log("🔍 Verificando disponibilidade...");
+        const { data: conflicts, error: conflictError } = await _supabase
+            .from('reservations')
+            .select('id')
+            .eq('room_number', parseInt(room))
+            .lt('start_time', endISO)
+            .gt('end_time', startISO);
+
+        if (conflictError) {
+            console.error("Erro ao verificar conflitos:", conflictError);
+        } else if (conflicts && conflicts.length > 0) {
+            toast("Já existe uma reserva nesta sala para o horário selecionado!", "error");
+            closeBookingModal(); // Fecha o modal conforme solicitado
+            return;
+        }
+
         const { error } = await _supabase.from('reservations').insert([
             { user_id: currentUser.id, room_number: parseInt(room), start_time: startISO, end_time: endISO }
         ]);
 
         if (error) {
-            if (error.code === '23P01') {
+            if (error.code === '23P01' || error.message.includes('overlap')) {
                 toast("Esta sala já está reservada para este horário!", "error");
+                closeBookingModal();
             } else {
                 console.error("Erro Supabase Insert:", error);
                 toast("Erro ao salvar: " + error.message, "error");
@@ -609,13 +645,21 @@ async function saveUser() {
             const email = document.getElementById('user-email').value.trim();
             const password = document.getElementById('user-password').value;
 
-            if (!email) { toast('E-mail é obrigatório.', 'error'); btn.classList.remove('btn-loading'); btn.disabled = false; return; }
-            if (!password || password.length < 6) { toast('Senha deve ter no mínimo 6 caracteres.', 'error'); btn.classList.remove('btn-loading'); btn.disabled = false; return; }
+            if (!email) { 
+                toast('E-mail é obrigatório.', 'error'); 
+                btn.classList.remove('btn-loading'); 
+                btn.disabled = false; 
+                return; 
+            }
+            if (!password || password.length < 6) { 
+                toast('Senha deve ter no mínimo 6 caracteres.', 'error'); 
+                btn.classList.remove('btn-loading'); 
+                btn.disabled = false; 
+                return; 
+            }
 
-            // Usar um cliente temporário impede que o "signUp" deslogue o Admin atual!
-            const _tempClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-                auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
-            });
+            // Usar um cliente singleton para signUp evita múltiplos avisos no console
+            const _tempClient = getSignUpClient();
 
             const { data: signUpData, error: signUpError } = await _tempClient.auth.signUp({
                 email,
@@ -627,7 +671,7 @@ async function saveUser() {
 
             if (signUpError) {
                 if (signUpError.message.includes('User already registered')) {
-                    toast('Usuário já cadastrado no Auth.', 'error');
+                    toast('Este e-mail já está cadastrado.', 'error');
                 } else {
                     throw signUpError;
                 }
@@ -795,4 +839,70 @@ function openRoomDetails(roomId) {
 
 function closeRoomDetails() {
     document.getElementById('room-details-modal').classList.remove('visible');
+}
+
+function renderRooms() {
+    const grid = document.getElementById('rooms-grid');
+    if (!grid) return;
+
+    const icons = {
+        "Lugares": "👥",
+        "TV": "📺",
+        "Janelas": "🪟",
+        "Quadro": "📝",
+        "Ar Condicionado": "❄️",
+        "Wi-Fi": "📶",
+        "Cafeteira": "☕",
+        "Vista": "🏙️",
+        "Isolamento": "🔇",
+        "Design": "🎨",
+        "Tomadas": "🔌"
+    };
+
+    const getIcon = (feature) => {
+        for (const [key, icon] of Object.entries(icons)) {
+            if (feature.toLowerCase().includes(key.toLowerCase())) return icon;
+        }
+        return "✨";
+    };
+
+    grid.innerHTML = Object.entries(ROOM_DETAILS).map(([id, room]) => {
+        const isFeatured = id === "3"; // Match existing logic
+        const formattedId = id.padStart(2, '0');
+        
+        const featuresHtml = room.features.slice(0, 3).map(f => `
+            <div class="feature"><span class="f-icon">${getIcon(f)}</span> ${f}</div>
+        `).join('');
+
+        return `
+            <div class="room-card-container" onclick="openRoomDetails(${id})">
+                <div class="room-card">
+                    <!-- FRONT -->
+                    <div class="room-card-front ${isFeatured ? 'featured' : ''}">
+                        ${isFeatured ? '<span class="badge-gold">Interna Comercial</span>' : ''}
+                        <div class="room-card-header">
+                            <div class="room-number">${formattedId}</div>
+                            <h3>${room.name}</h3>
+                        </div>
+                        <div class="room-features">
+                            ${featuresHtml}
+                        </div>
+                    </div>
+                    <!-- BACK -->
+                    <div class="room-card-back">
+                        <img src="${room.image}" class="room-back-image" alt="${room.name}">
+                        <div class="room-back-overlay">
+                            <div class="room-back-info">
+                                <h4>${room.name}</h4>
+                                <p>${room.description}</p>
+                                <button class="btn btn-primary btn-card-back btn-full">
+                                    Ver Detalhes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
 }

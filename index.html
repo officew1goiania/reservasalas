@@ -175,78 +175,11 @@
                     <p class="subtitle">Detalhes e recursos de cada ambiente</p>
                 </div>
 
-                <div class="rooms-grid">
-                    <div class="room-card" onclick="openRoomDetails(1)">
-                        <div class="room-card-header">
-                            <div class="room-number">01</div>
-                            <h3>Sala de Reunião 1</h3>
-                        </div>
-                        <div class="room-features">
-                            <div class="feature"><span class="f-icon">👥</span> 4 Lugares</div>
-                            <div class="feature"><span class="f-icon">📺</span> TV</div>
-                            <div class="feature"><span class="f-icon">🪟</span> Janelas</div>
-                        </div>
-                    </div>
-
-                    <div class="room-card" onclick="openRoomDetails(2)">
-                        <div class="room-card-header">
-                            <div class="room-number">02</div>
-                            <h3>Sala de Reunião 2</h3>
-                        </div>
-                        <div class="room-features">
-                            <div class="feature"><span class="f-icon">👥</span> 6 Lugares</div>
-                            <div class="feature"><span class="f-icon">📺</span> TV</div>
-                            <div class="feature"><span class="f-icon">🪟</span> Janelas</div>
-                        </div>
-                    </div>
-
-                    <div class="room-card featured" onclick="openRoomDetails(3)">
-                        <div class="room-card-header">
-                            <div class="room-number">03</div>
-                            <h3>Sala de Reunião 3</h3>
-                            <span class="badge badge-gold">Interna Comercial</span>
-                        </div>
-                        <div class="room-features">
-                            <div class="feature"><span class="f-icon">👥</span> 6 Lugares</div>
-                            <div class="feature"><span class="f-icon">📺</span> TV</div>
-                            <div class="feature"><span class="f-icon">🪟</span> Janelas</div>
-                            <div class="feature"><span class="f-icon">☕</span> Cafeteira</div>
-                        </div>
-                    </div>
-
-                    <div class="room-card" onclick="openRoomDetails(4)">
-                        <div class="room-card-header">
-                            <div class="room-number">04</div>
-                            <h3>Sala de Reunião 4</h3>
-                        </div>
-                        <div class="room-features">
-                            <div class="feature"><span class="f-icon">👥</span> 6 Lugares</div>
-                            <div class="feature"><span class="f-icon">🪟</span> Janelas</div>
-                            <div class="feature"><span class="f-icon">📺</span> TV</div>
-                        </div>
-                    </div>
-
-                    <div class="room-card" onclick="openRoomDetails(5)">
-                        <div class="room-card-header">
-                            <div class="room-number">05</div>
-                            <h3>Sala de Reunião 5</h3>
-                        </div>
-                        <div class="room-features">
-                            <div class="feature"><span class="f-icon">👥</span> 6 Lugares</div>
-                            <div class="feature"><span class="f-icon">🪟</span> Janelas</div>
-                            <div class="feature"><span class="f-icon">📺</span> TV</div>
-                        </div>
-                    </div>
-
-                    <div class="room-card" onclick="openRoomDetails(6)">
-                        <div class="room-card-header">
-                            <div class="room-number">06</div>
-                            <h3>Sala de Reunião 6</h3>
-                        </div>
-                        <div class="room-features">
-                            <div class="feature"><span class="f-icon">👥</span> 3 Lugares</div>
-                            <div class="feature"><span class="f-icon">📺</span> TV</div>
-                        </div>
+                <div class="rooms-grid" id="rooms-grid">
+                    <!-- Cards are rendered dynamically via app.js -->
+                    <div class="empty-state">
+                        <div class="loading-spinner"></div>
+                        <p>Carregando salas...</p>
                     </div>
                 </div>
             </div>

@@ -1144,36 +1144,116 @@ table.users-table tbody tr:last-child td {
 /* ===========================================
    ROOMS PAGE
    =========================================== */
+/* ---------- Rooms Grid & Flip Cards ---------- */
 .rooms-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.room-card-container {
+    perspective: 1500px;
+    height: 280px; /* Fixed height for consistent flipping */
+    width: 100%;
+    cursor: pointer;
 }
 
 .room-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+.room-card-container:hover .room-card {
+    transform: rotateY(180deg);
+}
+
+.room-card-front, .room-card-back {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* FRONT SIDE */
+.room-card-front {
     background: var(--bg-glass);
     backdrop-filter: blur(16px);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
     padding: 1.5rem;
-    transition: all var(--transition);
-    position: relative;
-    overflow: hidden;
-    animation: fadeIn 0.5s ease both;
+    z-index: 2;
 }
 
-.room-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--border-focus);
-    box-shadow: var(--shadow-md);
-}
-
-.room-card.featured {
+.room-card-front.featured {
     border-color: var(--gold);
-    background: linear-gradient(135deg, rgba(212, 168, 83, 0.05), rgba(255, 255, 255, 0.03));
+    background: linear-gradient(135deg, rgba(212, 168, 83, 0.08), rgba(255, 255, 255, 0.03));
 }
 
+/* BACK SIDE */
+.room-card-back {
+    background: var(--bg-surface);
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.room-back-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+}
+
+.room-back-overlay {
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(to top, rgba(10, 10, 26, 0.95) 0%, rgba(10, 10, 26, 0.4) 100%);
+    padding: 1.5rem;
+    backdrop-filter: blur(4px);
+}
+
+.room-back-info {
+    margin-top: auto;
+}
+
+.room-back-info h4 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.4rem;
+}
+
+.room-back-info p {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.btn-card-back {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 6px;
+}
+
+/* Header & Elements */
 .room-card-header {
     display: flex;
     align-items: center;
@@ -1182,9 +1262,9 @@ table.users-table tbody tr:last-child td {
 }
 
 .room-number {
-    width: 42px;
-    height: 42px;
-    background: rgba(255,255,255,0.05);
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.06);
     border: 1px solid var(--border);
     border-radius: 12px;
     display: flex;
@@ -1192,7 +1272,7 @@ table.users-table tbody tr:last-child td {
     justify-content: center;
     font-weight: 800;
     color: var(--teal-light);
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
 .room-card h3 {
@@ -1205,6 +1285,7 @@ table.users-table tbody tr:last-child td {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.8rem;
+    margin-top: auto;
 }
 
 .feature {
@@ -1215,21 +1296,20 @@ table.users-table tbody tr:last-child td {
     color: var(--text-secondary);
 }
 
-.f-icon {
-    font-size: 1rem;
-}
+.f-icon { font-size: 1rem; }
 
 .badge-gold {
-    background: rgba(212, 168, 83, 0.15);
-    color: var(--gold);
+    background: rgba(212, 168, 83, 0.2);
+    color: var(--gold-light);
     font-size: 0.62rem;
-    padding: 2px 8px;
+    padding: 4px 10px;
     border-radius: 20px;
     text-transform: uppercase;
     font-weight: 700;
     position: absolute;
     top: 1rem;
     right: 1rem;
+    border: 1px solid rgba(212, 168, 83, 0.3);
 }
 
 /* ---------- Utility ---------- */
