@@ -30,16 +30,18 @@
     --radius-md: 14px;
     --radius-lg: 20px;
 
-    --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
-    --shadow-md: 0 8px 32px rgba(0,0,0,0.4);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4);
     --shadow-glow: 0 0 30px var(--accent-glow);
 
-    --transition: 0.25s cubic-bezier(.4,0,.2,1);
+    --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
     --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* ---------- Reset ---------- */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -56,39 +58,82 @@ body {
 
 /* ---------- Animations ---------- */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(40px) scale(0.97); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 @keyframes shimmer {
-    0%   { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
 }
 
 @keyframes pulse-ring {
-    0%   { box-shadow: 0 0 0 0 var(--accent-glow); }
-    70%  { box-shadow: 0 0 0 10px rgba(13,148,136,0); }
-    100% { box-shadow: 0 0 0 0 rgba(13,148,136,0); }
+    0% {
+        box-shadow: 0 0 0 0 var(--accent-glow);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(13, 148, 136, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(13, 148, 136, 0);
+    }
 }
 
 @keyframes modalIn {
-    from { opacity: 0; transform: scale(0.92) translateY(20px); }
-    to   { opacity: 1; transform: scale(1) translateY(0); }
+    from {
+        opacity: 0;
+        transform: scale(0.92) translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 /* ---------- Scrollbar ---------- */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
 ::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
 }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.18);
+}
 
 /* ===========================================
    LOGIN SCREEN
@@ -103,8 +148,8 @@ body {
     justify-content: center;
     align-items: center;
     background:
-        radial-gradient(ellipse at 20% 50%, rgba(13,148,136,0.12) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(212,168,83,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 20% 50%, rgba(13, 148, 136, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(212, 168, 83, 0.08) 0%, transparent 50%),
         var(--bg-deep);
     position: relative;
     overflow: hidden;
@@ -209,10 +254,12 @@ body {
     transition: color var(--transition);
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
     width: 100%;
     padding: 0.8rem 0.8rem 0.8rem 2.6rem;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     font-size: 0.95rem;
@@ -222,13 +269,16 @@ input, select, textarea {
     outline: none;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
     border-color: var(--border-focus);
-    background: rgba(255,255,255,0.07);
+    background: rgba(255, 255, 255, 0.07);
     box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
-input::placeholder, textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
     color: var(--text-muted);
 }
 
@@ -316,13 +366,13 @@ label {
 }
 
 .btn-secondary:hover {
-    background: rgba(255,255,255,0.05);
-    border-color: rgba(255,255,255,0.15);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
     color: var(--text-primary);
 }
 
 .btn-google {
-    background: rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.08);
     color: var(--text-primary);
     border: 1px solid var(--border);
     gap: 0.6rem;
@@ -334,10 +384,10 @@ label {
 }
 
 .btn-google:hover {
-    background: rgba(255,255,255,0.14);
-    border-color: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.2);
     transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(255,255,255,0.06);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.06);
 }
 
 .btn-google svg {
@@ -403,7 +453,7 @@ label {
     content: '';
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(255,255,255,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-top-color: #fff;
     border-radius: 50%;
     animation: spin 0.6s linear infinite;
@@ -411,7 +461,9 @@ label {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* ===========================================
@@ -503,12 +555,12 @@ label {
 }
 
 .nav-item:hover {
-    background: rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.05);
     color: var(--text-primary);
 }
 
 .nav-item.active {
-    background: rgba(13,148,136,0.12);
+    background: rgba(13, 148, 136, 0.12);
     color: var(--teal-light);
     font-weight: 600;
 }
@@ -623,8 +675,8 @@ label {
 .fc {
     --fc-border-color: var(--border);
     --fc-page-bg-color: transparent;
-    --fc-neutral-bg-color: rgba(255,255,255,0.03);
-    --fc-today-bg-color: rgba(13,148,136,0.08);
+    --fc-neutral-bg-color: rgba(255, 255, 255, 0.03);
+    --fc-today-bg-color: rgba(13, 148, 136, 0.08);
     --fc-event-border-color: transparent;
 }
 
@@ -635,7 +687,7 @@ label {
 }
 
 .fc .fc-button {
-    background: rgba(255,255,255,0.06) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
     border: 1px solid var(--border) !important;
     color: var(--text-secondary) !important;
     font-family: var(--font) !important;
@@ -647,7 +699,7 @@ label {
 }
 
 .fc .fc-button:hover {
-    background: rgba(255,255,255,0.1) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
     color: var(--text-primary) !important;
 }
 
@@ -669,11 +721,11 @@ label {
     padding: 2px 6px !important;
     font-size: 0.78rem !important;
     border: none !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.25) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
 }
 
 .fc .fc-timegrid-col.fc-day-today {
-    background: rgba(13,148,136,0.05) !important;
+    background: rgba(13, 148, 136, 0.05) !important;
 }
 
 .fc th {
@@ -711,8 +763,13 @@ label {
     animation: fadeIn 0.5s ease both;
 }
 
-.stat-card:nth-child(2) { animation-delay: 0.05s; }
-.stat-card:nth-child(3) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) {
+    animation-delay: 0.05s;
+}
+
+.stat-card:nth-child(3) {
+    animation-delay: 0.1s;
+}
 
 .stat-card .stat-label {
     font-size: 0.75rem;
@@ -789,7 +846,7 @@ table.users-table thead th {
     text-transform: uppercase;
     letter-spacing: 0.08em;
     border-bottom: 1px solid var(--border);
-    background: rgba(255,255,255,0.02);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 table.users-table tbody tr {
@@ -797,7 +854,7 @@ table.users-table tbody tr {
 }
 
 table.users-table tbody tr:hover {
-    background: rgba(255,255,255,0.03);
+    background: rgba(255, 255, 255, 0.03);
 }
 
 table.users-table tbody td {
@@ -856,33 +913,33 @@ table.users-table tbody tr:last-child td {
 }
 
 .badge-admin {
-    background: rgba(212,168,83,0.15);
+    background: rgba(212, 168, 83, 0.15);
     color: var(--gold-light);
-    border: 1px solid rgba(212,168,83,0.25);
+    border: 1px solid rgba(212, 168, 83, 0.25);
 }
 
 .badge-user {
-    background: rgba(13,148,136,0.15);
+    background: rgba(13, 148, 136, 0.15);
     color: var(--teal-light);
-    border: 1px solid rgba(13,148,136,0.25);
+    border: 1px solid rgba(13, 148, 136, 0.25);
 }
 
 .badge-bp {
-    background: rgba(99,102,241,0.15);
+    background: rgba(99, 102, 241, 0.15);
     color: #a5b4fc;
-    border: 1px solid rgba(99,102,241,0.25);
+    border: 1px solid rgba(99, 102, 241, 0.25);
 }
 
 .badge-active {
-    background: rgba(34,197,94,0.12);
+    background: rgba(34, 197, 94, 0.12);
     color: #86efac;
-    border: 1px solid rgba(34,197,94,0.2);
+    border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
 .badge-inactive {
-    background: rgba(239,68,68,0.12);
+    background: rgba(239, 68, 68, 0.12);
     color: #fca5a5;
-    border: 1px solid rgba(239,68,68,0.2);
+    border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .actions-cell {
@@ -1019,19 +1076,39 @@ table.users-table tbody tr:last-child td {
     max-width: 400px;
 }
 
-.toast.success { border-left: 3px solid #22c55e; }
-.toast.error   { border-left: 3px solid #ef4444; }
-.toast.info    { border-left: 3px solid var(--teal); }
+.toast.success {
+    border-left: 3px solid #22c55e;
+}
 
-.toast .toast-icon { font-size: 1.1rem; }
+.toast.error {
+    border-left: 3px solid #ef4444;
+}
+
+.toast.info {
+    border-left: 3px solid var(--teal);
+}
+
+.toast .toast-icon {
+    font-size: 1.1rem;
+}
 
 @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to   { transform: translateX(0); opacity: 1; }
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 @keyframes fadeOut {
-    to { opacity: 0; transform: translateX(30px); }
+    to {
+        opacity: 0;
+        transform: translateX(30px);
+    }
 }
 
 /* ===========================================
@@ -1120,7 +1197,7 @@ table.users-table tbody tr:last-child td {
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0, 0, 0, 0.5);
         z-index: 99;
         opacity: 0;
         visibility: hidden;
@@ -1134,6 +1211,7 @@ table.users-table tbody tr:last-child td {
 }
 
 @media (min-width: 769px) {
+
     .mobile-header,
     .hamburger,
     .mobile-overlay {
@@ -1154,7 +1232,8 @@ table.users-table tbody tr:last-child td {
 
 .room-card-container {
     perspective: 1500px;
-    height: 280px; /* Fixed height for consistent flipping */
+    height: 280px;
+    /* Fixed height for consistent flipping */
     width: 100%;
     cursor: pointer;
 }
@@ -1171,7 +1250,8 @@ table.users-table tbody tr:last-child td {
     transform: rotateY(180deg);
 }
 
-.room-card-front, .room-card-back {
+.room-card-front,
+.room-card-back {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -1264,7 +1344,7 @@ table.users-table tbody tr:last-child td {
 .room-number {
     width: 40px;
     height: 40px;
-    background: rgba(255,255,255,0.06);
+    background: rgba(255, 255, 255, 0.06);
     border: 1px solid var(--border);
     border-radius: 12px;
     display: flex;
@@ -1296,7 +1376,9 @@ table.users-table tbody tr:last-child td {
     color: var(--text-secondary);
 }
 
-.f-icon { font-size: 1rem; }
+.f-icon {
+    font-size: 1rem;
+}
 
 .badge-gold {
     background: rgba(212, 168, 83, 0.2);
@@ -1313,9 +1395,17 @@ table.users-table tbody tr:last-child td {
 }
 
 /* ---------- Utility ---------- */
-.hidden { display: none !important; }
-.flex { display: flex; }
-.gap-1 { gap: 0.5rem; }
+.hidden {
+    display: none !important;
+}
+
+.flex {
+    display: flex;
+}
+
+.gap-1 {
+    gap: 0.5rem;
+}
 
 /* ===========================================
    ROOM DETAILS MODAL STYLES
@@ -1332,7 +1422,7 @@ table.users-table tbody tr:last-child td {
     position: absolute;
     top: 15px;
     right: 15px;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     border: none;
     color: white;
     width: 32px;
@@ -1402,7 +1492,7 @@ table.users-table tbody tr:last-child td {
     display: inline-block;
     width: 14px;
     height: 14px;
-    border: 2px solid rgba(255,255,255,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
     border-top-color: #fff;
     animation: spin 0.8s linear infinite;

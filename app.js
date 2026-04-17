@@ -23,10 +23,10 @@ let _signUpClient = null;
 function getSignUpClient() {
     if (!_signUpClient) {
         _signUpClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-            auth: { 
-                persistSession: false, 
-                autoRefreshToken: false, 
-                detectSessionInUrl: false 
+            auth: {
+                persistSession: false,
+                autoRefreshToken: false,
+                detectSessionInUrl: false
             }
         });
     }
@@ -101,14 +101,14 @@ async function logout() {
         console.log("📤 Iniciando Logout...");
         const { error } = await _supabase.auth.signOut();
         if (error) throw error;
-        
+
         currentUser = null;
         currentProfile = null;
         currentRole = null;
-        if (calendar) { 
+        if (calendar) {
             console.log("🗑 Destruindo instância do calendário");
-            calendar.destroy(); 
-            calendar = null; 
+            calendar.destroy();
+            calendar = null;
         }
         console.log("✅ Logout concluído com sucesso.");
     } catch (err) {
@@ -131,7 +131,7 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
         // Tentar buscar o perfil
         let profile = null;
         let fetchError = null;
-        
+
         try {
             const { data, error } = await _supabase
                 .from('profiles')
@@ -208,7 +208,7 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
 
             currentProfile = profile;
             currentRole = profile.role || 'bp';
-            
+
             console.log("👤 Usuário logado como:", currentRole);
         } else {
             // Fallback extremo
@@ -221,7 +221,7 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
         if (profile) {
             const userName = profile.full_name || currentUser.email || 'Usuário';
             const initials = getInitials(userName);
-            
+
             const avatarEl = document.getElementById('sidebar-avatar');
             const nameEl = document.getElementById('sidebar-user-name');
             const roleEl = document.getElementById('sidebar-user-role');
@@ -271,7 +271,7 @@ function getInitials(name) {
 function navigateTo(page) {
     try {
         console.log(`🚀 Navegando para: ${page}`);
-        
+
         // Update nav
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         const activeNav = document.querySelector(`.nav-item[data-page="${page}"]`);
@@ -345,14 +345,14 @@ async function fetchEvents(info, successCallback, failureCallback) {
 
     if (error) {
         console.warn("Erro ao buscar reservas com perfis:", error.message || error);
-        
+
         // Se houver erro de recursão ou 500, tentamos buscar apenas os dados brutos de reserva
         if (error.message.includes('recursion') || error.status === 500 || error.code === 'PGRST500') {
             console.log("🛠 Iniciando fallback: buscando reservas sem detalhes de perfil...");
             const { data: fallbackData, error: fallbackError } = await _supabase
                 .from('reservations')
                 .select('id, room_number, start_time, end_time, user_id');
-            
+
             if (fallbackError) {
                 console.error("Erro no fallback de reservas:", fallbackError);
                 failureCallback(fallbackError);
@@ -376,7 +376,7 @@ async function fetchEvents(info, successCallback, failureCallback) {
             extendedProps: { user_id: res.user_id, room_number: res.room_number }
         };
     });
-    
+
     successCallback(events);
 }
 
@@ -458,7 +458,7 @@ function closeBookingModal() {
 
 async function saveReservation() {
     const btn = document.querySelector('#booking-modal .btn-primary');
-    
+
     try {
         const room = document.getElementById('room-select').value;
         const start = document.getElementById('start-time').value;
@@ -470,7 +470,7 @@ async function saveReservation() {
         const endDate = new Date(end);
 
         if (startDate >= endDate) return toast("O horário de fim deve ser após o início.", "error");
-        
+
         const now = new Date();
         if (startDate < now) return toast("Não é possível reservar no passado.", "error");
 
@@ -584,10 +584,10 @@ function renderUsers(users) {
     const tbody = document.getElementById('users-tbody');
 
     if (!users.length) {
-        const errorMsg = currentRole === 'admin' && allUsers.length === 0 ? 
-            "Erro ao carregar do banco. Verifique as políticas de segurança (RLS)." : 
+        const errorMsg = currentRole === 'admin' && allUsers.length === 0 ?
+            "Erro ao carregar do banco. Verifique as políticas de segurança (RLS)." :
             "Nenhum usuário encontrado";
-            
+
         tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">⚠️</div><p>${errorMsg}</p></div></td></tr>`;
         return;
     }
@@ -707,17 +707,17 @@ async function saveUser() {
             const email = document.getElementById('user-email').value.trim();
             const password = document.getElementById('user-password').value;
 
-            if (!email) { 
-                toast('E-mail é obrigatório.', 'error'); 
-                btn.classList.remove('btn-loading'); 
-                btn.disabled = false; 
-                return; 
+            if (!email) {
+                toast('E-mail é obrigatório.', 'error');
+                btn.classList.remove('btn-loading');
+                btn.disabled = false;
+                return;
             }
-            if (!password || password.length < 6) { 
-                toast('Senha deve ter no mínimo 6 caracteres.', 'error'); 
-                btn.classList.remove('btn-loading'); 
-                btn.disabled = false; 
-                return; 
+            if (!password || password.length < 6) {
+                toast('Senha deve ter no mínimo 6 caracteres.', 'error');
+                btn.classList.remove('btn-loading');
+                btn.disabled = false;
+                return;
             }
 
             // Usar um cliente singleton para signUp evita múltiplos avisos no console
@@ -807,11 +807,11 @@ function openConfirmModal(title, text, callback) {
     confirmCallback = callback;
 
     const btn = document.getElementById('btn-confirm-action');
-    
+
     // Removemos eventos antigos clonando o botão (técnica limpa para resetar listeners)
     const newBtn = btn.cloneNode(true);
     btn.parentNode.replaceChild(newBtn, btn);
-    
+
     newBtn.addEventListener('click', async () => {
         console.log("Botão de confirmação clicado! Executando callback...");
         try {
@@ -849,39 +849,39 @@ function escapeHtml(text) {
 const ROOM_DETAILS = {
     1: {
         name: "Sala de Reunião 1",
-        description: "Ambiente moderno e minimalista, ideal para reuniões rápidas e brainstorms em pequenos grupos. Equipada com tecnologia de ponta para videoconferências.",
+        description: "Office 1 - Sala à direita da entrada",
         image: "meeting_room_1_1776372923543.png",
         features: ["4 Lugares", "TV 50\"", "Quadro Branco", "Ar Condicionado"]
     },
     2: {
         name: "Sala de Reunião 2",
-        description: "Espaço versátil com excelente iluminação natural, perfeito para apresentações e reuniões de equipe de médio porte.",
+        description: "Office 1 - Sala ao centro, em frente à entrada",
         image: "meeting_room_2_1776373055517.png",
-        features: ["6 Lugares", "TV 55\"", "Janelas Amplas", "Wi-Fi dedicado"]
+        features: ["6 Lugares", "TV", "Janelas"]
     },
     3: {
-        name: "Sala de Reunião 3 (Interna Comercial)",
-        description: "Nossa sala premium com acabamento executivo. Ideal para fechamento de negócios e recepção de clientes VIP. Conta com estação de café privativa.",
+        name: "Sala de Reunião 3",
+        description: "Office 1 - Sala interna na área comercial à direita",
         image: "meeting_room_3_premium_1776373088230.png",
-        features: ["6 Lugares", "TV 65\"", "Cafeteira Premium", "Vista Panorâmica", "Isolamento Acústico"]
+        features: ["6 Lugares", "TV", "Janelas", "Cafeteira"]
     },
     4: {
         name: "Sala de Reunião 4",
-        description: "Ambiente focado em produtividade, com layout otimizado para sessões de trabalho colaborativo.",
+        description: "Office 2 - Sala à esquerda da entrada",
         image: "meeting_room_2_1776373055517.png",
-        features: ["6 Lugares", "TV 50\"", "Ar Condicionado", "Porta USB em mesa"]
+        features: ["6 Lugares", "TV", "Janelas"]
     },
     5: {
         name: "Sala de Reunião 5",
-        description: "Conforto e privacidade para reuniões estratégicas. Equipada com sistema de som integrado.",
+        description: "Office 2 - Sala ao centro da entrada",
         image: "meeting_room_1_1776372923543.png",
-        features: ["6 Lugares", "TV 50\"", "Cortinas Blackout", "Quadro de Vidro"]
+        features: ["6 Lugares", "TV", "Janelas"]
     },
     6: {
         name: "Sala de Reunião 6",
-        description: "Ideal para conversas privadas, entrevistas ou chamadas confidencias. Compacta e aconchegante.",
+        description: "Office 2 - Sala à direita da entrada",
         image: "meeting_room_1_1776372923543.png",
-        features: ["3 Lugares", "TV 43\"", "Design Minimalista", "Tomadas Internas"]
+        features: ["3 Lugares", "TV"]
     }
 };
 
@@ -892,10 +892,10 @@ function openRoomDetails(roomId) {
     document.getElementById('room-modal-image').src = room.image;
     document.getElementById('room-modal-title').textContent = room.name;
     document.getElementById('room-modal-description').textContent = room.description;
-    
+
     const featuresList = document.getElementById('room-modal-features');
     featuresList.innerHTML = room.features.map(f => `<span class="badge badge-user">${f}</span>`).join('');
-    
+
     document.getElementById('room-details-modal').classList.add('visible');
 }
 
@@ -931,7 +931,7 @@ function renderRooms() {
     grid.innerHTML = Object.entries(ROOM_DETAILS).map(([id, room]) => {
         const isFeatured = id === "3"; // Match existing logic
         const formattedId = id.padStart(2, '0');
-        
+
         const featuresHtml = room.features.slice(0, 3).map(f => `
             <div class="feature"><span class="f-icon">${getIcon(f)}</span> ${f}</div>
         `).join('');
