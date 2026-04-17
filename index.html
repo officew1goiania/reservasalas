@@ -176,7 +176,7 @@
                 </div>
 
                 <div class="rooms-grid">
-                    <div class="room-card">
+                    <div class="room-card" onclick="openRoomDetails(1)">
                         <div class="room-card-header">
                             <div class="room-number">01</div>
                             <h3>Sala de Reunião 1</h3>
@@ -188,7 +188,7 @@
                         </div>
                     </div>
 
-                    <div class="room-card">
+                    <div class="room-card" onclick="openRoomDetails(2)">
                         <div class="room-card-header">
                             <div class="room-number">02</div>
                             <h3>Sala de Reunião 2</h3>
@@ -200,7 +200,7 @@
                         </div>
                     </div>
 
-                    <div class="room-card featured">
+                    <div class="room-card featured" onclick="openRoomDetails(3)">
                         <div class="room-card-header">
                             <div class="room-number">03</div>
                             <h3>Sala de Reunião 3</h3>
@@ -214,7 +214,7 @@
                         </div>
                     </div>
 
-                    <div class="room-card">
+                    <div class="room-card" onclick="openRoomDetails(4)">
                         <div class="room-card-header">
                             <div class="room-number">04</div>
                             <h3>Sala de Reunião 4</h3>
@@ -226,7 +226,7 @@
                         </div>
                     </div>
 
-                    <div class="room-card">
+                    <div class="room-card" onclick="openRoomDetails(5)">
                         <div class="room-card-header">
                             <div class="room-number">05</div>
                             <h3>Sala de Reunião 5</h3>
@@ -238,7 +238,7 @@
                         </div>
                     </div>
 
-                    <div class="room-card">
+                    <div class="room-card" onclick="openRoomDetails(6)">
                         <div class="room-card-header">
                             <div class="room-number">06</div>
                             <h3>Sala de Reunião 6</h3>
@@ -317,6 +317,27 @@
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="closeUserModal()">Cancelar</button>
                 <button class="btn btn-gold" id="btn-save-user" onclick="saveUser()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: DETALHES DA SALA ============ -->
+    <div id="room-details-modal" class="modal-overlay">
+        <div class="modal-box room-detail-box">
+            <button class="modal-close" onclick="closeRoomDetails()">×</button>
+            <div class="room-modal-img-wrapper">
+                <img id="room-modal-image" src="" alt="Foto da Sala">
+            </div>
+            <div class="room-modal-content">
+                <h3 id="room-modal-title">Nome da Sala</h3>
+                <p id="room-modal-description" class="room-description">Descrição da sala...</p>
+                <div class="room-modal-features-grid" id="room-modal-features">
+                    <!-- Features added via JS -->
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closeRoomDetails()">Fechar</button>
+                    <button class="btn btn-primary" onclick="closeRoomDetails(); navigateTo('agenda'); openBookingModal();">Reservar Agora</button>
+                </div>
             </div>
         </div>
     </div>

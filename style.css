@@ -1236,3 +1236,95 @@ table.users-table tbody tr:last-child td {
 .hidden { display: none !important; }
 .flex { display: flex; }
 .gap-1 { gap: 0.5rem; }
+
+/* ===========================================
+   ROOM DETAILS MODAL STYLES
+   =========================================== */
+.room-detail-box {
+    max-width: 650px;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-surface);
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0,0,0,0.5);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: var(--transition);
+}
+
+.modal-close:hover {
+    background: var(--teal);
+    transform: rotate(90deg);
+}
+
+.room-modal-img-wrapper {
+    width: 100%;
+    height: 340px;
+    overflow: hidden;
+    position: relative;
+}
+
+.room-modal-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s ease;
+}
+
+.room-detail-box:hover .room-modal-img-wrapper img {
+    transform: scale(1.04);
+}
+
+.room-modal-content {
+    padding: 2.25rem;
+}
+
+.room-modal-content h3 {
+    margin-bottom: 0.75rem;
+    font-size: 1.4rem;
+}
+
+.room-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.room-modal-features-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 2rem;
+}
+
+.room-card {
+    cursor: pointer;
+}
+
+/* Spinner for loading state */
+.loading-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.8s linear infinite;
+    margin-right: 8px;
+}

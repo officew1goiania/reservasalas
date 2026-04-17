@@ -76,11 +76,24 @@ async function loginWithGoogle() {
 }
 
 async function logout() {
-    await _supabase.auth.signOut();
-    currentUser = null;
-    currentProfile = null;
-    currentRole = null;
-    if (calendar) { calendar.destroy(); calendar = null; }
+    try {
+        console.log("📤 Iniciando Logout...");
+        const { error } = await _supabase.auth.signOut();
+        if (error) throw error;
+        
+        currentUser = null;
+        currentProfile = null;
+        currentRole = null;
+        if (calendar) { 
+            console.log("🗑 Destruindo instância do calendário");
+            calendar.destroy(); 
+            calendar = null; 
+        }
+        console.log("✅ Logout concluído com sucesso.");
+    } catch (err) {
+        console.error("❌ Erro ao sair:", err);
+        toast("Erro ao sair. Tente recarregar a página.", "error");
+    }
 }
 
 
@@ -213,23 +226,33 @@ function getInitials(name) {
 //  NAVIGATION
 // =============================================
 function navigateTo(page) {
-    // Update nav
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    const activeNav = document.querySelector(`.nav-item[data-page="${page}"]`);
-    if (activeNav) activeNav.classList.add('active');
+    try {
+        console.log(`🚀 Navegando para: ${page}`);
+        
+        // Update nav
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        const activeNav = document.querySelector(`.nav-item[data-page="${page}"]`);
+        if (activeNav) activeNav.classList.add('active');
 
-    // Show/hide pages
-    document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
-    const target = document.getElementById(`page-${page}`);
-    if (target) target.classList.remove('hidden');
+        // Show/hide pages
+        document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+        const target = document.getElementById(`page-${page}`);
+        if (target) {
+            target.classList.remove('hidden');
+        } else {
+            console.warn(`⚠️ Página não encontrada: page-${page}`);
+        }
 
-    // Load data
-    if (page === 'usuarios' && currentRole === 'admin') {
-        loadUsers();
+        // Load data
+        if (page === 'usuarios' && currentRole === 'admin') {
+            loadUsers();
+        }
+
+        // Close mobile sidebar
+        closeSidebar();
+    } catch (err) {
+        console.error("❌ Erro crítico na navegação:", err);
     }
-
-    // Close mobile sidebar
-    closeSidebar();
 }
 
 function toggleSidebar() {
@@ -369,37 +392,69 @@ function closeBookingModal() {
 }
 
 async function saveReservation() {
-    const room = document.getElementById('room-select').value;
-    const start = document.getElementById('start-time').value;
-    const end = document.getElementById('end-time').value;
+    const btn = document.querySelector('#booking-modal .btn-primary');
+    
+    try {
+        const room = document.getElementById('room-select').value;
+        const start = document.getElementById('start-time').value;
+        const end = document.getElementById('end-time').value;
 
-    if (!room || !start || !end) return toast("Preencha todos os campos.", "error");
-    if (new Date(start) >= new Date(end)) return toast("O horário de fim deve ser após o início.", "error");
+        if (!room || !start || !end) return toast("Preencha todos os campos.", "error");
 
-    // Converte os horários locais do formulário para o formato ISO preservando o fuso local
-    const getLocalISO = (dateStr) => {
-        const d = new Date(dateStr);
-        const offset = -d.getTimezoneOffset();
-        const sign = offset >= 0 ? '+' : '-';
-        const hours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0');
-        const mins = (Math.abs(offset) % 60).toString().padStart(2, '0');
-        return `${dateStr}:00${sign}${hours}:${mins}`;
-    };
+        const startDate = new Date(start);
+        const endDate = new Date(end);
 
-    const startISO = getLocalISO(start);
-    const endISO = getLocalISO(end);
+        if (startDate >= endDate) return toast("O horário de fim deve ser após o início.", "error");
+        
+        const now = new Date();
+        if (startDate < now) return toast("Não é possível reservar no passado.", "error");
 
-    const { error } = await _supabase.from('reservations').insert([
-        { user_id: currentUser.id, room_number: parseInt(room), start_time: startISO, end_time: endISO }
-    ]);
+        if (!currentUser) {
+            toast("Sessão expirada. Por favor, recarregue a página.", "error");
+            return;
+        }
 
-    if (error) {
-        if (error.code === '23P01') toast("Esta sala já está reservada para este horário!", "error");
-        else toast("Erro: " + error.message, "error");
-    } else {
-        toast("Reserva concluída!", "success");
-        closeBookingModal();
-        calendar.refetchEvents();
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Confirmando...';
+
+        console.log("💾 Salvando reserva...", { room, start, end, user_id: currentUser.id });
+
+        // Converte os horários locais do formulário para o formato ISO preservando o fuso local
+        const getLocalISO = (dateStr) => {
+            const d = new Date(dateStr);
+            const offset = -d.getTimezoneOffset();
+            const sign = offset >= 0 ? '+' : '-';
+            const hours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0');
+            const mins = (Math.abs(offset) % 60).toString().padStart(2, '0');
+            return `${dateStr}:00${sign}${hours}:${mins}`;
+        };
+
+        const startISO = getLocalISO(start);
+        const endISO = getLocalISO(end);
+
+        const { error } = await _supabase.from('reservations').insert([
+            { user_id: currentUser.id, room_number: parseInt(room), start_time: startISO, end_time: endISO }
+        ]);
+
+        if (error) {
+            if (error.code === '23P01') {
+                toast("Esta sala já está reservada para este horário!", "error");
+            } else {
+                console.error("Erro Supabase Insert:", error);
+                toast("Erro ao salvar: " + error.message, "error");
+            }
+        } else {
+            console.log("✅ Reserva salva com sucesso!");
+            toast("Reserva concluída!", "success");
+            closeBookingModal();
+            if (calendar) calendar.refetchEvents();
+        }
+    } catch (err) {
+        console.error("❌ Erro inesperado em saveReservation:", err);
+        toast("Ocorreu um erro técnico. Verifique o console.", "error");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Confirmar';
     }
 }
 
@@ -676,7 +731,68 @@ function closeConfirmModal() {
 //  UTILITIES
 // =============================================
 function escapeHtml(text) {
+    if (!text) return '';
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// =============================================
+//  ROOM DETAILS & PHOTOS
+// =============================================
+const ROOM_DETAILS = {
+    1: {
+        name: "Sala de Reunião 1",
+        description: "Ambiente moderno e minimalista, ideal para reuniões rápidas e brainstorms em pequenos grupos. Equipada com tecnologia de ponta para videoconferências.",
+        image: "meeting_room_1_1776372923543.png",
+        features: ["4 Lugares", "TV 50\"", "Quadro Branco", "Ar Condicionado"]
+    },
+    2: {
+        name: "Sala de Reunião 2",
+        description: "Espaço versátil com excelente iluminação natural, perfeito para apresentações e reuniões de equipe de médio porte.",
+        image: "meeting_room_2_1776373055517.png",
+        features: ["6 Lugares", "TV 55\"", "Janelas Amplas", "Wi-Fi dedicado"]
+    },
+    3: {
+        name: "Sala de Reunião 3 (Interna Comercial)",
+        description: "Nossa sala premium com acabamento executivo. Ideal para fechamento de negócios e recepção de clientes VIP. Conta com estação de café privativa.",
+        image: "meeting_room_3_premium_1776373088230.png",
+        features: ["6 Lugares", "TV 65\"", "Cafeteira Premium", "Vista Panorâmica", "Isolamento Acústico"]
+    },
+    4: {
+        name: "Sala de Reunião 4",
+        description: "Ambiente focado em produtividade, com layout otimizado para sessões de trabalho colaborativo.",
+        image: "meeting_room_2_1776373055517.png",
+        features: ["6 Lugares", "TV 50\"", "Ar Condicionado", "Porta USB em mesa"]
+    },
+    5: {
+        name: "Sala de Reunião 5",
+        description: "Conforto e privacidade para reuniões estratégicas. Equipada com sistema de som integrado.",
+        image: "meeting_room_1_1776372923543.png",
+        features: ["6 Lugares", "TV 50\"", "Cortinas Blackout", "Quadro de Vidro"]
+    },
+    6: {
+        name: "Sala de Reunião 6",
+        description: "Ideal para conversas privadas, entrevistas ou chamadas confidencias. Compacta e aconchegante.",
+        image: "meeting_room_1_1776372923543.png",
+        features: ["3 Lugares", "TV 43\"", "Design Minimalista", "Tomadas Internas"]
+    }
+};
+
+function openRoomDetails(roomId) {
+    const room = ROOM_DETAILS[roomId];
+    if (!room) return;
+
+    document.getElementById('room-modal-image').src = room.image;
+    document.getElementById('room-modal-title').textContent = room.name;
+    document.getElementById('room-modal-description').textContent = room.description;
+    
+    const featuresList = document.getElementById('room-modal-features');
+    featuresList.innerHTML = room.features.map(f => `<span class="badge badge-user">${f}</span>`).join('');
+    
+    document.getElementById('room-details-modal').classList.add('visible');
+}
+
+function closeRoomDetails() {
+    document.getElementById('room-details-modal').classList.remove('visible');
 }
