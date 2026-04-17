@@ -851,7 +851,7 @@ const ROOM_DETAILS = {
         name: "Sala de Reunião 1",
         description: "Office 1 - Sala à direita da entrada",
         image: "meeting_room_1_1776372923543.png",
-        features: ["4 Lugares", "TV 50\"", "Quadro Branco", "Ar Condicionado"]
+        features: ["6 Lugares", "TV", "Janelas"]
     },
     2: {
         name: "Sala de Reunião 2",
