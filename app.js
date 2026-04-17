@@ -36,7 +36,13 @@ function getSignUpClient() {
 // Teste de conexão imediato
 _supabase.from('profiles').select('count', { count: 'exact', head: true })
     .then(({ error }) => {
-        if (error) console.error("⚠️ Teste de conexão falhou:", error.message || error);
+        if (error) {
+            console.error("⚠️ Teste de conexão falhou:", error.message || error);
+            // Se for erro 500, provavelmente é RLS ou Banco de Dados
+            if (error.code === 'PGRST500' || (error.status >= 500)) {
+                console.warn("Dica: Verifique as políticas de RLS ou se a tabela 'profiles' está correta.");
+            }
+        }
         else console.log("✅ Conexão com Supabase estabelecida com sucesso.");
     })
     .catch(err => console.error("❌ Erro crítico na inicialização:", err));
@@ -122,7 +128,7 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
     if (session) {
         currentUser = session.user;
 
-        // Tentar buscar o perfil com até 3 tentativas em caso de erro de rede
+        // Tentar buscar o perfil
         let profile = null;
         let fetchError = null;
         
@@ -131,16 +137,21 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
                 .from('profiles')
                 .select('*')
                 .eq('id', currentUser.id)
-                .single();
+                .maybeSingle(); // Usar maybeSingle() para evitar erro de '0 linhas' no log
             profile = data;
             fetchError = error;
+
+            if (fetchError) {
+                console.error("Erro ao buscar perfil:", fetchError);
+            }
         } catch (e) {
-            console.error("Erro na busca de perfil:", e);
+            console.error("Exceção na busca de perfil:", e);
         }
 
-        // Se logou com Google (ou conta nova) e não achou profile (se trigger falhou ou apagaram)
-        if (!profile && !fetchError) {
-            console.log("ℹ️ Perfil não encontrado. Verificando se é admin...");
+        // Se não achou profile OU deu erro (como o 500 que estamos vendo), 
+        // mas o usuário é Admin, tentamos recuperar.
+        if (!profile) {
+            console.log("ℹ️ Perfil não encontrado ou erro na busca. Verificando se é admin...");
             const userEmail = currentUser.email;
             const isAdmin = userEmail === ADMIN_EMAIL;
 
@@ -157,22 +168,26 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
                     status: 'active'
                 };
 
+                console.log("🛠 Tentando restaurar/criar perfil admin...");
                 const { data: inserted, error: insertErr } = await _supabase
                     .from('profiles')
                     .upsert(newProfile)
                     .select()
-                    .single();
+                    .maybeSingle();
 
                 if (insertErr) {
                     console.error('Erro ao recriar perfil admin:', insertErr);
+                    // Fallback: usar o objeto local para não quebrar a UI
                     profile = newProfile;
                 } else {
-                    profile = inserted;
+                    profile = inserted || newProfile;
                 }
                 toast(`Bem-vindo, Admin! Seu perfil foi restaurado.`, 'success');
             } else {
-                console.warn("🚫 Usuário sem perfil. Forçando logout.");
-                toast('Seu acesso não foi liberado. Contate o administrador.', 'error');
+                // Se não for admin e deu erro/não achou, não podemos deixar entrar
+                console.warn("🚫 Usuário sem perfil ou erro de banco. Forçando logout.");
+                const msg = fetchError ? 'Erro de conexão com o banco (500). Contate o administrador.' : 'Seu acesso não foi liberado. Contate o administrador.';
+                toast(msg, 'error');
                 await _supabase.auth.signOut();
                 return;
             }
@@ -195,20 +210,29 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
             currentRole = profile.role || 'bp';
             
             console.log("👤 Usuário logado como:", currentRole);
+        } else {
+            // Fallback extremo
+            toast('Erro ao carregar seu perfil.', 'error');
+            await _supabase.auth.signOut();
+            return;
         }
 
         // Update sidebar user info
-        const initials = getInitials(profile.full_name || currentUser.email);
-        document.getElementById('sidebar-avatar').textContent = initials;
-        document.getElementById('sidebar-user-name').textContent = profile.full_name || currentUser.email;
-        document.getElementById('sidebar-user-role').textContent = currentRole.toUpperCase();
+        const userName = profile.full_name || currentUser.email || 'Usuário';
+        const initials = getInitials(userName);
+        
+        const avatarEl = document.getElementById('sidebar-avatar');
+        const nameEl = document.getElementById('sidebar-user-name');
+        const roleEl = document.getElementById('sidebar-user-role');
+
+        if (avatarEl) avatarEl.textContent = initials;
+        if (nameEl) nameEl.textContent = userName;
+        if (roleEl) roleEl.textContent = (currentRole || 'USER').toUpperCase();
 
         // Show/hide admin nav
         const navUsuarios = document.getElementById('nav-usuarios');
-        if (currentRole === 'admin') {
-            navUsuarios.style.display = 'flex';
-        } else {
-            navUsuarios.style.display = 'none';
+        if (navUsuarios) {
+            navUsuarios.style.display = (currentRole === 'admin') ? 'flex' : 'none';
         }
 
         // Switch screens
