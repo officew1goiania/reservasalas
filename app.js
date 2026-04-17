@@ -1,7 +1,7 @@
 //  W1 Goiânia – Reservas  (app.js)
-//  v7 - Fix Login Crash & Resilience
+//  v8 - Fix Recursion Resilience
 // =============================================
-console.log("🚀 App loading - Version 7");
+console.log("🚀 App loading - Version 8");
 
 const SUPABASE_URL = 'https://dicavscewjdvxceqbtbk.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRpY2F2c2Nld2pkdnhjZXFidGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyOTc2NTMsImV4cCI6MjA5MTg3MzY1M30.qD-jTm9cCB2axOXqbMzicBZ8zQzy8n5uGGtYwguDwks';
@@ -336,7 +336,7 @@ function initCalendar() {
 }
 
 async function fetchEvents(info, successCallback, failureCallback) {
-    const { data, error } = await _supabase
+    let { data, error } = await _supabase
         .from('reservations')
         .select(`
             id, room_number, start_time, end_time, user_id,
@@ -344,19 +344,38 @@ async function fetchEvents(info, successCallback, failureCallback) {
         `);
 
     if (error) {
-        console.error("Erro ao buscar reservas:", error.message || error);
-        failureCallback(error);
-        return;
+        console.warn("Erro ao buscar reservas com perfis:", error.message || error);
+        
+        // Se houver erro de recursão ou 500, tentamos buscar apenas os dados brutos de reserva
+        if (error.message.includes('recursion') || error.status === 500 || error.code === 'PGRST500') {
+            console.log("🛠 Iniciando fallback: buscando reservas sem detalhes de perfil...");
+            const { data: fallbackData, error: fallbackError } = await _supabase
+                .from('reservations')
+                .select('id, room_number, start_time, end_time, user_id');
+            
+            if (fallbackError) {
+                console.error("Erro no fallback de reservas:", fallbackError);
+                failureCallback(fallbackError);
+                return;
+            }
+            data = fallbackData;
+        } else {
+            failureCallback(error);
+            return;
+        }
     }
 
-    const events = data.map(res => ({
-        id: res.id,
-        title: `Sala ${res.room_number} — ${res.profiles?.full_name || 'Reservado'}`,
-        start: res.start_time,
-        end: res.end_time,
-        backgroundColor: getRoomColor(res.room_number),
-        extendedProps: { user_id: res.user_id, room_number: res.room_number }
-    }));
+    const events = (data || []).map(res => {
+        const userName = res.profiles?.full_name || 'Usuário';
+        return {
+            id: res.id,
+            title: `Sala ${res.room_number} — ${userName}`,
+            start: res.start_time,
+            end: res.end_time,
+            backgroundColor: getRoomColor(res.room_number),
+            extendedProps: { user_id: res.user_id, room_number: res.room_number }
+        };
+    });
     
     successCallback(events);
 }
@@ -528,17 +547,28 @@ async function saveReservation() {
 async function loadUsers() {
     if (currentRole !== 'admin') return;
 
-    const { data, error } = await _supabase
-        .from('profiles')
-        .select('*')
-        .order('full_name', { ascending: true });
+    try {
+        const { data, error } = await _supabase
+            .from('profiles')
+            .select('*')
+            .order('full_name', { ascending: true });
 
-    if (error) {
-        toast('Erro ao carregar usuários: ' + error.message, 'error');
-        return;
+        if (error) {
+            console.error("Erro ao carregar usuários:", error);
+            if (error.message.includes('recursion') || error.status === 500) {
+                toast('Erro de configuração no banco (Recursão RLS).', 'error');
+            } else {
+                toast('Erro ao carregar usuários: ' + error.message, 'error');
+            }
+            allUsers = [];
+        } else {
+            allUsers = data || [];
+        }
+    } catch (err) {
+        console.error("Exceção ao carregar usuários:", err);
+        allUsers = [];
     }
 
-    allUsers = data || [];
     renderUsers(allUsers);
     updateStats(allUsers);
 }
@@ -554,7 +584,11 @@ function renderUsers(users) {
     const tbody = document.getElementById('users-tbody');
 
     if (!users.length) {
-        tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">👥</div><p>Nenhum usuário encontrado</p></div></td></tr>`;
+        const errorMsg = currentRole === 'admin' && allUsers.length === 0 ? 
+            "Erro ao carregar do banco. Verifique as políticas de segurança (RLS)." : 
+            "Nenhum usuário encontrado";
+            
+        tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">⚠️</div><p>${errorMsg}</p></div></td></tr>`;
         return;
     }
 
