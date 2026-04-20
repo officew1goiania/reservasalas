@@ -436,14 +436,19 @@ function refreshCalendar() {
 // =============================================
 function setupRoomSelect() {
     const select = document.getElementById('room-select');
+    if (!select) return;
     select.innerHTML = '';
-    const maxRooms = (currentRole === 'bp') ? 3 : 6;
-    for (let i = 1; i <= maxRooms; i++) {
+    
+    // Salas normais baseadas na role + Phone Boots para todos
+    const roomIds = (currentRole === 'bp') ? [1, 2, 3, 7, 8] : [1, 2, 3, 4, 5, 6, 7, 8];
+    
+    roomIds.forEach(id => {
         const opt = document.createElement('option');
-        opt.value = i;
-        opt.innerText = `Sala ${i}`;
+        opt.value = id;
+        const roomName = ROOM_DETAILS[id]?.name || `Sala ${id}`;
+        opt.innerText = roomName;
         select.appendChild(opt);
-    }
+    });
 }
 
 function openBookingModal() {
@@ -882,6 +887,18 @@ const ROOM_DETAILS = {
         description: "Office 2 - Sala à direita da entrada",
         image: "meeting_room_1_1776372923543.png",
         features: ["3 Lugares", "TV"]
+    },
+    7: {
+        name: "Phone Boot 1",
+        description: "Espaço individual privativo com janela e vista externa.",
+        image: "phone_boot_1.png",
+        features: ["Uso Individual", "Janelas", "Silencioso"]
+    },
+    8: {
+        name: "Phone Boot 2",
+        description: "Cabine acústica individual com iluminação natural.",
+        image: "phone_boot_2.png",
+        features: ["Uso Individual", "Janelas", "Silencioso"]
     }
 };
 
