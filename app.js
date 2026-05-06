@@ -566,11 +566,13 @@ async function saveSettings() {
 function testBanner() {
     const testConfig = {
         active: true,
-        url: document.getElementById('config-banner-url').value.trim() || 'C:/Users/ph_gr/.gemini/antigravity/brain/4bc26be5-a257-4fe7-8afd-a4be295b37cb/event_banner_1778089467128.png',
+        url: document.getElementById('config-banner-url').value.trim() || 'event_banner.png',
         link: document.getElementById('config-banner-link').value.trim()
     };
     applyBannerConfig(testConfig);
 }
+
+function closeBookingModal() {
     document.getElementById('booking-modal').classList.remove('visible');
     document.getElementById('start-time').value = '';
     document.getElementById('end-time').value = '';
