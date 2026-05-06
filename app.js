@@ -235,6 +235,10 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
             if (navUsuarios) {
                 navUsuarios.style.display = (currentRole === 'admin') ? 'flex' : 'none';
             }
+            const navConfiguracoes = document.getElementById('nav-configuracoes');
+            if (navConfiguracoes) {
+                navConfiguracoes.style.display = (currentRole === 'admin') ? 'flex' : 'none';
+            }
         } else {
             console.error("❌ Erro fatal: Tentativa de atualizar UI sem perfil carregado.");
         }
@@ -247,6 +251,9 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
         setupRoomSelect();
         if (!calendar) initCalendar();
         else calendar.refetchEvents();
+        
+        // Load global settings
+        loadGlobalSettings();
 
     } else {
         document.getElementById('login-screen').style.display = 'flex';
@@ -292,6 +299,9 @@ function navigateTo(page) {
         }
         if (page === 'salas') {
             renderRooms();
+        }
+        if (page === 'configuracoes' && currentRole === 'admin') {
+            loadSettingsForm();
         }
 
         // Close mobile sidebar
@@ -438,10 +448,10 @@ function setupRoomSelect() {
     const select = document.getElementById('room-select');
     if (!select) return;
     select.innerHTML = '';
-    
+
     // Salas normais baseadas na role + Phone Boots para todos
     const roomIds = (currentRole === 'bp') ? [1, 2, 3, 7, 8] : [1, 2, 3, 4, 5, 6, 7, 8];
-    
+
     roomIds.forEach(id => {
         const opt = document.createElement('option');
         opt.value = id;
@@ -455,7 +465,112 @@ function openBookingModal() {
     document.getElementById('booking-modal').classList.add('visible');
 }
 
-function closeBookingModal() {
+// =============================================
+//  EVENT POPUP CONTROLS & SETTINGS
+// =============================================
+
+function openEventPopup() {
+    const popup = document.getElementById('event-popup');
+    if (popup) popup.classList.add('visible');
+}
+
+function closeEventPopup() {
+    const popup = document.getElementById('event-popup');
+    if (popup) popup.classList.remove('visible');
+}
+
+let globalBannerConfig = { active: false, url: '', link: '' };
+
+async function loadGlobalSettings() {
+    try {
+        const { data, error } = await _supabase
+            .from('app_settings')
+            .select('value')
+            .eq('key', 'banner_config')
+            .maybeSingle();
+
+        if (error) {
+            console.warn("Erro ao carregar configurações do banner (a tabela pode não existir ainda).", error.message);
+            return;
+        }
+
+        if (data && data.value) {
+            globalBannerConfig = data.value;
+            applyBannerConfig(globalBannerConfig);
+        }
+    } catch (err) {
+        console.error("Exceção ao carregar configurações:", err);
+    }
+}
+
+function applyBannerConfig(config) {
+    const imgEl = document.getElementById('event-banner-img');
+    const linkEl = document.getElementById('event-banner-link');
+    
+    if (config.url) {
+        imgEl.src = config.url;
+    }
+    
+    if (config.link) {
+        linkEl.href = config.link;
+        linkEl.style.pointerEvents = 'auto';
+    } else {
+        linkEl.removeAttribute('href');
+        linkEl.style.pointerEvents = 'none';
+    }
+
+    if (config.active && String(config.active) === 'true') {
+        openEventPopup();
+    }
+}
+
+function loadSettingsForm() {
+    document.getElementById('config-banner-active').value = String(globalBannerConfig.active === true);
+    document.getElementById('config-banner-url').value = globalBannerConfig.url || '';
+    document.getElementById('config-banner-link').value = globalBannerConfig.link || '';
+}
+
+async function saveSettings() {
+    const btn = document.getElementById('btn-save-settings');
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+
+    const newConfig = {
+        active: document.getElementById('config-banner-active').value === 'true',
+        url: document.getElementById('config-banner-url').value.trim(),
+        link: document.getElementById('config-banner-link').value.trim()
+    };
+
+    try {
+        const { error } = await _supabase
+            .from('app_settings')
+            .upsert({ key: 'banner_config', value: newConfig });
+
+        if (error) {
+            toast('Erro ao salvar. Verifique se a tabela app_settings existe.', 'error');
+            console.error(error);
+        } else {
+            toast('Configurações salvas com sucesso!', 'success');
+            globalBannerConfig = newConfig;
+            applyBannerConfig(newConfig);
+        }
+    } catch (err) {
+        toast('Erro inesperado ao salvar.', 'error');
+        console.error(err);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Salvar Configurações';
+    }
+}
+
+function testBanner() {
+    const testConfig = {
+        active: true,
+        url: document.getElementById('config-banner-url').value.trim() || 'C:/Users/ph_gr/.gemini/antigravity/brain/4bc26be5-a257-4fe7-8afd-a4be295b37cb/event_banner_1778089467128.png',
+        link: document.getElementById('config-banner-link').value.trim()
+    };
+    applyBannerConfig(testConfig);
+}
     document.getElementById('booking-modal').classList.remove('visible');
     document.getElementById('start-time').value = '';
     document.getElementById('end-time').value = '';
@@ -874,29 +989,29 @@ const ROOM_DETAILS = {
         name: "Sala de Reunião 4",
         description: "Office 2 - Sala à esquerda da entrada",
         image: "meeting_room_2_1776373055517.png",
-        features: ["6 Lugares", "TV", "Janelas"]
+        features: ["6 Lugares", "TV", "Janelas", "Acesso exclusivo para FA3+"]
     },
     5: {
         name: "Sala de Reunião 5",
         description: "Office 2 - Sala ao centro da entrada",
         image: "meeting_room_1_1776372923543.png",
-        features: ["6 Lugares", "TV", "Janelas"]
+        features: ["6 Lugares", "TV", "Janelas", "Acesso exclusivo para FA3+"]
     },
     6: {
         name: "Sala de Reunião 6",
         description: "Office 2 - Sala à direita da entrada",
         image: "meeting_room_1_1776372923543.png",
-        features: ["3 Lugares", "TV"]
+        features: ["3 Lugares", "TV", "Acesso exclusivo para FA3+"]
     },
     7: {
         name: "Phone Boot 1",
-        description: "Espaço individual privativo com janela e vista externa.",
+        description: "Phone Boot Direito",
         image: "phone_boot_1.png",
         features: ["Uso Individual", "Janelas", "Silencioso"]
     },
     8: {
         name: "Phone Boot 2",
-        description: "Cabine acústica individual com iluminação natural.",
+        description: "Phone Boot Esquerdo",
         image: "phone_boot_2.png",
         features: ["Uso Individual", "Janelas", "Silencioso"]
     }

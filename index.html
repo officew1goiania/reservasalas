@@ -16,7 +16,15 @@
 <body>
 
     <!-- ============ TOAST CONTAINER ============ -->
-    <div id="toast-container" class="toast-container"></div>
+<!-- ============ EVENT POPUP ============ -->
+    <div id="event-popup" class="modal-overlay">
+        <div class="modal-box" style="max-width: 600px; padding: 1.5rem;">
+            <button class="modal-close" onclick="closeEventPopup()">×</button>
+            <a id="event-banner-link" href="#" target="_blank" style="display: block; text-decoration: none; pointer-events: none;">
+                <img id="event-banner-img" src="C:/Users/ph_gr/.gemini/antigravity/brain/4bc26be5-a257-4fe7-8afd-a4be295b37cb/event_banner_1778089467128.png" alt="Evento" style="width:100%; height:auto; border-radius: var(--radius-md); display: block;"/>
+            </a>
+        </div>
+    </div>
 
     <!-- ============ LOGIN SCREEN ============ -->
     <div id="login-screen" class="screen">
@@ -68,6 +76,10 @@
                 <button class="nav-item" data-page="usuarios" id="nav-usuarios" onclick="navigateTo('usuarios')"
                     style="display:none;">
                     <span class="nav-icon">👥</span> Usuários
+                </button>
+                <button class="nav-item" data-page="configuracoes" id="nav-configuracoes" onclick="navigateTo('configuracoes')"
+                    style="display:none;">
+                    <span class="nav-icon">⚙️</span> Configurações
                 </button>
             </nav>
 
@@ -180,6 +192,40 @@
                     <div class="empty-state">
                         <div class="loading-spinner"></div>
                         <p>Carregando salas...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== PAGE: CONFIGURAÇÕES ====== -->
+            <div id="page-configuracoes" class="page-content hidden">
+                <div class="page-header">
+                    <h1>Configurações do Sistema</h1>
+                </div>
+
+                <div style="background: var(--bg-glass); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem; color: var(--gold);">Banner de Eventos</h3>
+                    
+                    <div class="form-row" style="max-width: 400px; margin-bottom: 1.5rem;">
+                        <label>Status do Banner</label>
+                        <select id="config-banner-active">
+                            <option value="false">Desativado</option>
+                            <option value="true">Ativado (Mostrar ao iniciar)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row" style="max-width: 600px; margin-bottom: 1.5rem;">
+                        <label>URL da Imagem do Banner</label>
+                        <input type="text" id="config-banner-url" placeholder="https://exemplo.com/imagem.png">
+                    </div>
+
+                    <div class="form-row" style="max-width: 600px; margin-bottom: 2rem;">
+                        <label>Link de Redirecionamento (Opcional)</label>
+                        <input type="text" id="config-banner-link" placeholder="https://exemplo.com/evento">
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-gold" id="btn-save-settings" onclick="saveSettings()">Salvar Configurações</button>
+                        <button class="btn btn-secondary" onclick="testBanner()">Testar Visualização</button>
                     </div>
                 </div>
             </div>
