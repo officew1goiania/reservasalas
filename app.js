@@ -251,7 +251,7 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
         setupRoomSelect();
         if (!calendar) initCalendar();
         else calendar.refetchEvents();
-        
+
         // Load global settings
         loadGlobalSettings();
 
@@ -391,11 +391,7 @@ async function fetchEvents(info, successCallback, failureCallback) {
 }
 
 function getRoomColor(room) {
-    const colors = [
-        '#0d9488', '#d4a853', '#6366f1',
-        '#ec4899', '#f97316', '#8b5cf6'
-    ];
-    return colors[(room - 1) % colors.length];
+    return ROOM_DETAILS[room]?.color || '#6366f1';
 }
 
 async function handleEventClick(info) {
@@ -444,7 +440,7 @@ function refreshCalendar() {
 // =============================================
 //  BOOKING MODAL
 // =============================================
-function setupRoomSelect() {
+function setupRoomSelect(selectedId = null) {
     const select = document.getElementById('room-select');
     if (!select) return;
     select.innerHTML = '';
@@ -457,11 +453,15 @@ function setupRoomSelect() {
         opt.value = id;
         const roomName = ROOM_DETAILS[id]?.name || `Sala ${id}`;
         opt.innerText = roomName;
+        if (selectedId && parseInt(selectedId) === id) {
+            opt.selected = true;
+        }
         select.appendChild(opt);
     });
 }
 
-function openBookingModal() {
+function openBookingModal(roomId = null) {
+    setupRoomSelect(roomId);
     document.getElementById('booking-modal').classList.add('visible');
 }
 
@@ -506,11 +506,11 @@ async function loadGlobalSettings() {
 function applyBannerConfig(config) {
     const imgEl = document.getElementById('event-banner-img');
     const linkEl = document.getElementById('event-banner-link');
-    
+
     if (config.url) {
         imgEl.src = config.url;
     }
-    
+
     if (config.link) {
         linkEl.href = config.link;
         linkEl.style.pointerEvents = 'auto';
@@ -973,49 +973,57 @@ const ROOM_DETAILS = {
         name: "Sala de Reunião 1",
         description: "Office 1 - Sala à direita da entrada",
         image: "meeting_room_1_1776372923543.png",
-        features: ["6 Lugares", "TV", "Janelas"]
+        features: ["6 Lugares", "TV", "Janelas"],
+        color: '#0d9488' // Teal
     },
     2: {
         name: "Sala de Reunião 2",
         description: "Office 1 - Sala ao centro, em frente à entrada",
         image: "meeting_room_2_1776373055517.png",
-        features: ["6 Lugares", "TV", "Janelas"]
+        features: ["6 Lugares", "TV", "Janelas"],
+        color: '#6366f1' // Indigo
     },
     3: {
         name: "Sala de Reunião 3",
         description: "Office 1 - Sala interna na área comercial à direita",
         image: "meeting_room_3_premium_1776373088230.png",
-        features: ["6 Lugares", "TV", "Janelas", "Cafeteira"]
+        features: ["6 Lugares", "TV", "Janelas", "Cafeteira"],
+        color: '#d4a853' // Gold
     },
     4: {
         name: "Sala de Reunião 4",
         description: "Office 2 - Sala à esquerda da entrada",
         image: "meeting_room_2_1776373055517.png",
-        features: ["6 Lugares", "TV", "Janelas", "Acesso exclusivo para FA3+"]
+        features: ["6 Lugares", "TV", "Janelas", "Acesso exclusivo para FA3+"],
+        color: '#ec4899' // Pink
     },
     5: {
         name: "Sala de Reunião 5",
         description: "Office 2 - Sala ao centro da entrada",
         image: "meeting_room_1_1776372923543.png",
-        features: ["6 Lugares", "TV", "Janelas", "Acesso exclusivo para FA3+"]
+        features: ["6 Lugares", "TV", "Janelas", "Acesso exclusivo para FA3+"],
+        color: '#f97316' // Orange
     },
     6: {
         name: "Sala de Reunião 6",
         description: "Office 2 - Sala à direita da entrada",
         image: "meeting_room_1_1776372923543.png",
-        features: ["3 Lugares", "TV", "Acesso exclusivo para FA3+"]
+        features: ["3 Lugares", "TV", "Acesso exclusivo para FA3+"],
+        color: '#8b5cf6' // Violet
     },
     7: {
         name: "Phone Boot 1",
         description: "Phone Boot Direito",
         image: "phone_boot_1.png",
-        features: ["Uso Individual", "Janelas", "Silencioso"]
+        features: ["Uso Individual", "Janelas", "Silencioso"],
+        color: '#2dd4bf' // Bright Teal
     },
     8: {
         name: "Phone Boot 2",
         description: "Phone Boot Esquerdo",
         image: "phone_boot_2.png",
-        features: ["Uso Individual", "Janelas", "Silencioso"]
+        features: ["Uso Individual", "Janelas", "Silencioso"],
+        color: '#fbbf24' // Amber
     }
 };
 
@@ -1026,6 +1034,16 @@ function openRoomDetails(roomId) {
     document.getElementById('room-modal-image').src = room.image;
     document.getElementById('room-modal-title').textContent = room.name;
     document.getElementById('room-modal-description').textContent = room.description;
+    
+    // Atualiza o botão de reservar no modal de detalhes
+    const reserveBtn = document.getElementById('btn-reserve-from-details');
+    if (reserveBtn) {
+        reserveBtn.onclick = () => {
+            closeRoomDetails();
+            navigateTo('agenda');
+            openBookingModal(roomId);
+        };
+    }
 
     const featuresList = document.getElementById('room-modal-features');
     featuresList.innerHTML = room.features.map(f => `<span class="badge badge-user">${f}</span>`).join('');
@@ -1076,8 +1094,8 @@ function renderRooms() {
                     <!-- FRONT -->
                     <div class="room-card-front ${isFeatured ? 'featured' : ''}">
                         ${isFeatured ? '<span class="badge-gold">Interna Comercial</span>' : ''}
-                        <div class="room-card-header">
-                            <div class="room-number">${formattedId}</div>
+                        <div class="room-card-header" style="border-left: 4px solid ${room.color}">
+                            <div class="room-number" style="color: ${room.color}">${formattedId}</div>
                             <h3>${room.name}</h3>
                         </div>
                         <div class="room-features">
