@@ -183,11 +183,24 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
                     profile = inserted || newProfile;
                 }
                 toast(`Bem-vindo, Admin! Seu perfil foi restaurado.`, 'success');
+            } else if (fetchError) {
+                // Se houver instabilidade no banco de dados, NÃO forçar logout!
+                // Mantenha o usuário com um perfil temporário seguro para continuar operando.
+                console.warn("⚠️ Falha temporária no banco ao buscar perfil. Mantendo sessão ativa com perfil restrito.");
+                
+                const userName = currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.email.split('@')[0];
+                
+                profile = {
+                    id: currentUser.id,
+                    full_name: userName,
+                    email: currentUser.email,
+                    role: 'bp', // Role mínima de segurança
+                    status: 'active'
+                };
             } else {
-                // Se não for admin e deu erro/não achou, não podemos deixar entrar
-                console.warn("🚫 Usuário sem perfil ou erro de banco. Forçando logout.");
-                const msg = fetchError ? 'Erro de conexão com o banco (500). Contate o administrador.' : 'Seu acesso não foi liberado. Contate o administrador.';
-                toast(msg, 'error');
+                // Se não for admin e não houver fetchError, o perfil legitimamente NÃO existe.
+                console.warn("🚫 Usuário sem perfil no banco. Forçando logout.");
+                toast('Seu acesso não foi liberado. Contate o administrador.', 'error');
                 await _supabase.auth.signOut();
                 return;
             }
@@ -613,7 +626,8 @@ async function saveReservation() {
             const sign = offset >= 0 ? '+' : '-';
             const hours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0');
             const mins = (Math.abs(offset) % 60).toString().padStart(2, '0');
-            return `${dateStr}:00${sign}${hours}:${mins}`;
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00${sign}${hours}:${mins}`;
         };
 
         const startISO = getLocalISO(start);
@@ -630,6 +644,8 @@ async function saveReservation() {
 
         if (conflictError) {
             console.error("Erro ao verificar conflitos:", conflictError);
+            toast("Erro técnico ao verificar disponibilidade. Verifique sua conexão.", "error");
+            return;
         } else if (conflicts && conflicts.length > 0) {
             toast("Já existe uma reserva nesta sala para o horário selecionado!", "error");
             closeBookingModal(); // Fecha o modal conforme solicitado
