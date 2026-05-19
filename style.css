@@ -147,7 +147,7 @@ body {
 #login-screen {
     justify-content: center;
     align-items: center;
-    background: url('login_bg_lines.png') no-repeat center center;
+    background: url('login_bg_simple.png') no-repeat center center;
     background-size: cover;
     position: relative;
     overflow: hidden;
@@ -246,7 +246,7 @@ select,
 textarea {
     width: 100%;
     padding: 0.8rem 0.8rem 0.8rem 2.6rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     font-size: 0.95rem;
@@ -260,7 +260,7 @@ input:focus,
 select:focus,
 textarea:focus {
     border-color: var(--border-focus);
-    background: rgba(255, 255, 255, 0.07);
+    background: rgba(0, 0, 0, 0.07);
     box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
@@ -353,13 +353,13 @@ label {
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.15);
     color: var(--text-primary);
 }
 
 .btn-google {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.08);
     color: var(--text-primary);
     border: 1px solid var(--border);
     gap: 0.6rem;
@@ -542,7 +542,7 @@ label {
 }
 
 .nav-item:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.05);
     color: var(--text-primary);
 }
 
@@ -662,7 +662,7 @@ label {
 .fc {
     --fc-border-color: var(--border);
     --fc-page-bg-color: transparent;
-    --fc-neutral-bg-color: rgba(255, 255, 255, 0.03);
+    --fc-neutral-bg-color: rgba(0, 0, 0, 0.03);
     --fc-today-bg-color: rgba(13, 148, 136, 0.08);
     --fc-event-border-color: transparent;
 }
@@ -674,7 +674,7 @@ label {
 }
 
 .fc .fc-button {
-    background: rgba(255, 255, 255, 0.06) !important;
+    background: rgba(0, 0, 0, 0.05) !important;
     border: 1px solid var(--border) !important;
     color: var(--text-secondary) !important;
     font-family: var(--font) !important;
@@ -686,7 +686,7 @@ label {
 }
 
 .fc .fc-button:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(0, 0, 0, 0.1) !important;
     color: var(--text-primary) !important;
 }
 
@@ -833,7 +833,7 @@ table.users-table thead th {
     text-transform: uppercase;
     letter-spacing: 0.08em;
     border-bottom: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(0, 0, 0, 0.02);
 }
 
 table.users-table tbody tr {
@@ -841,7 +841,7 @@ table.users-table tbody tr {
 }
 
 table.users-table tbody tr:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(0, 0, 0, 0.04);
 }
 
 table.users-table tbody td {
@@ -1331,7 +1331,7 @@ table.users-table tbody tr:last-child td {
 .room-number {
     width: 40px;
     height: 40px;
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.04);
     border: 1px solid var(--border);
     border-radius: 12px;
     display: flex;
