@@ -147,10 +147,8 @@ body {
 #login-screen {
     justify-content: center;
     align-items: center;
-    background:
-        radial-gradient(ellipse at 20% 50%, rgba(13, 148, 136, 0.12) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(212, 168, 83, 0.08) 0%, transparent 50%),
-        var(--bg-deep);
+    background: url('login_bg_lines.png') no-repeat center center;
+    background-size: cover;
     position: relative;
     overflow: hidden;
 }
