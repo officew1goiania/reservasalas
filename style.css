@@ -5,33 +5,33 @@
 
 /* ---------- Tokens ---------- */
 :root {
-    --bg-deep: #0a0a1a;
-    --bg-surface: #12122a;
-    --bg-card: rgba(255, 255, 255, 0.04);
-    --bg-glass: rgba(255, 255, 255, 0.06);
+    --bg-deep: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-card: rgba(0, 0, 0, 0.03);
+    --bg-glass: rgba(255, 255, 255, 0.8);
 
     --teal: #0d9488;
-    --teal-light: #2dd4bf;
+    --teal-light: #0f766e;
     --gold: #d4a853;
-    --gold-light: #f0d48a;
+    --gold-light: #b48530;
 
     --accent: var(--teal);
-    --accent-glow: rgba(13, 148, 136, 0.35);
-    --gold-glow: rgba(212, 168, 83, 0.3);
+    --accent-glow: rgba(13, 148, 136, 0.2);
+    --gold-glow: rgba(212, 168, 83, 0.2);
 
-    --text-primary: #f0f0f5;
-    --text-secondary: #9ca3af;
-    --text-muted: #6b7280;
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    --text-muted: #9ca3af;
 
-    --border: rgba(255, 255, 255, 0.08);
+    --border: rgba(0, 0, 0, 0.12);
     --border-focus: rgba(13, 148, 136, 0.5);
 
     --radius-sm: 8px;
     --radius-md: 14px;
     --radius-lg: 20px;
 
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.08);
     --shadow-glow: 0 0 30px var(--accent-glow);
 
     --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
@@ -155,18 +155,7 @@ body {
     overflow: hidden;
 }
 
-#login-screen::before {
-    content: '';
-    position: absolute;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-    top: -150px;
-    right: -100px;
-    border-radius: 50%;
-    pointer-events: none;
-    animation: pulse-ring 4s infinite;
-}
+
 
 .login-card {
     background: var(--bg-glass);

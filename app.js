@@ -248,10 +248,7 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
             if (navUsuarios) {
                 navUsuarios.style.display = (currentRole === 'admin') ? 'flex' : 'none';
             }
-            const navConfiguracoes = document.getElementById('nav-configuracoes');
-            if (navConfiguracoes) {
-                navConfiguracoes.style.display = (currentRole === 'admin') ? 'flex' : 'none';
-            }
+
         } else {
             console.error("❌ Erro fatal: Tentativa de atualizar UI sem perfil carregado.");
         }
@@ -313,9 +310,7 @@ function navigateTo(page) {
         if (page === 'salas') {
             renderRooms();
         }
-        if (page === 'configuracoes' && currentRole === 'admin') {
-            loadSettingsForm();
-        }
+
 
         // Close mobile sidebar
         closeSidebar();
@@ -537,53 +532,7 @@ function applyBannerConfig(config) {
     }
 }
 
-function loadSettingsForm() {
-    document.getElementById('config-banner-active').value = String(globalBannerConfig.active === true);
-    document.getElementById('config-banner-url').value = globalBannerConfig.url || '';
-    document.getElementById('config-banner-link').value = globalBannerConfig.link || '';
-}
 
-async function saveSettings() {
-    const btn = document.getElementById('btn-save-settings');
-    btn.disabled = true;
-    btn.textContent = 'Salvando...';
-
-    const newConfig = {
-        active: document.getElementById('config-banner-active').value === 'true',
-        url: document.getElementById('config-banner-url').value.trim(),
-        link: document.getElementById('config-banner-link').value.trim()
-    };
-
-    try {
-        const { error } = await _supabase
-            .from('app_settings')
-            .upsert({ key: 'banner_config', value: newConfig });
-
-        if (error) {
-            toast('Erro ao salvar. Verifique se a tabela app_settings existe.', 'error');
-            console.error(error);
-        } else {
-            toast('Configurações salvas com sucesso!', 'success');
-            globalBannerConfig = newConfig;
-            applyBannerConfig(newConfig);
-        }
-    } catch (err) {
-        toast('Erro inesperado ao salvar.', 'error');
-        console.error(err);
-    } finally {
-        btn.disabled = false;
-        btn.textContent = 'Salvar Configurações';
-    }
-}
-
-function testBanner() {
-    const testConfig = {
-        active: true,
-        url: document.getElementById('config-banner-url').value.trim() || 'event_banner.png',
-        link: document.getElementById('config-banner-link').value.trim()
-    };
-    applyBannerConfig(testConfig);
-}
 
 function closeBookingModal() {
     document.getElementById('booking-modal').classList.remove('visible');
@@ -648,7 +597,6 @@ async function saveReservation() {
             return;
         } else if (conflicts && conflicts.length > 0) {
             toast("Já existe uma reserva nesta sala para o horário selecionado!", "error");
-            closeBookingModal(); // Fecha o modal conforme solicitado
             return;
         }
 
@@ -659,7 +607,6 @@ async function saveReservation() {
         if (error) {
             if (error.code === '23P01' || error.message.includes('overlap')) {
                 toast("Esta sala já está reservada para este horário!", "error");
-                closeBookingModal();
             } else {
                 console.error("Erro Supabase Insert:", error);
                 toast("Erro ao salvar: " + error.message, "error");
