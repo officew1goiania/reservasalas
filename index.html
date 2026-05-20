@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 
 <body>
@@ -29,6 +29,7 @@
 
     <!-- ============ LOGIN SCREEN ============ -->
     <div id="login-screen" class="screen">
+        <canvas id="login-canvas"></canvas>
         <div class="login-card">
             <div class="brand-icon">W1</div>
             <h1>W1 Goiânia</h1>
@@ -321,7 +322,108 @@
         </div>
     </div>
 
-    <script src="app.js?v=9"></script>
-</body>
+    <script src="app.js"></script>
+    <script>
+    // ===== PARALLAX NETWORK CANVAS =====
+    (function () {
+        const canvas = document.getElementById('login-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
 
+        const COLORS = ['#0d9488', '#0f9e91', '#d4a853', '#b48530', '#1aab9b'];
+        const NODE_COUNT = 70;
+        const CONNECTION_DIST = 160;
+        const MOUSE_STRENGTH = 60;
+
+        let W, H, nodes = [], mouse = { x: -9999, y: -9999 };
+
+        function resize() {
+            W = canvas.width = canvas.offsetWidth;
+            H = canvas.height = canvas.offsetHeight;
+        }
+
+        function mkNode() {
+            const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+            return {
+                x: Math.random() * W,
+                y: Math.random() * H,
+                vx: (Math.random() - 0.5) * 0.35,
+                vy: (Math.random() - 0.5) * 0.35,
+                r: Math.random() * 2 + 1,
+                color,
+                depth: Math.random() * 0.6 + 0.4
+            };
+        }
+
+        function init() {
+            resize();
+            nodes = Array.from({ length: NODE_COUNT }, mkNode);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+
+            // parallax offset per node based on mouse
+            const cx = W / 2, cy = H / 2;
+            const mx = (mouse.x - cx) / cx;
+            const my = (mouse.y - cy) / cy;
+
+            const pos = nodes.map(n => ({
+                x: n.x + mx * MOUSE_STRENGTH * n.depth,
+                y: n.y + my * MOUSE_STRENGTH * n.depth,
+                n
+            }));
+
+            // draw connections
+            for (let i = 0; i < pos.length; i++) {
+                for (let j = i + 1; j < pos.length; j++) {
+                    const dx = pos[i].x - pos[j].x;
+                    const dy = pos[i].y - pos[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < CONNECTION_DIST) {
+                        const alpha = (1 - dist / CONNECTION_DIST) * 0.35;
+                        ctx.beginPath();
+                        ctx.moveTo(pos[i].x, pos[i].y);
+                        ctx.lineTo(pos[j].x, pos[j].y);
+                        ctx.strokeStyle = pos[i].n.color + Math.round(alpha * 255).toString(16).padStart(2, '0');
+                        ctx.lineWidth = 0.8;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // draw nodes
+            pos.forEach(({ x, y, n }) => {
+                ctx.beginPath();
+                ctx.arc(x, y, n.r, 0, Math.PI * 2);
+                ctx.fillStyle = n.color + 'cc';
+                ctx.fill();
+            });
+
+            // move nodes
+            nodes.forEach(n => {
+                n.x += n.vx;
+                n.y += n.vy;
+                if (n.x < 0 || n.x > W) n.vx *= -1;
+                if (n.y < 0 || n.y > H) n.vy *= -1;
+            });
+
+            requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('resize', () => { resize(); });
+        document.getElementById('login-screen').addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
+        });
+        document.getElementById('login-screen').addEventListener('mouseleave', () => {
+            mouse.x = -9999; mouse.y = -9999;
+        });
+
+        init();
+        draw();
+    })();
+    </script>
+</body>
 </html>
