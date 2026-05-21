@@ -237,9 +237,47 @@
                 <label>Fim</label>
                 <input type="datetime-local" id="end-time">
             </div>
+            <div class="form-row">
+                <label>Observações</label>
+                <textarea id="booking-notes" placeholder="Alguma observação importante para esta reserva?" rows="3" style="width: 100%; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.5rem; background: rgba(0,0,0,0.05); color: var(--text-primary); font-family: inherit; resize: vertical; outline: none;"></textarea>
+            </div>
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="closeBookingModal()">Cancelar</button>
                 <button class="btn btn-primary" onclick="saveReservation()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: DETALHES DA RESERVA ============ -->
+    <div id="reservation-details-modal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 450px;">
+            <button class="modal-close" onclick="closeReservationDetailsModal()">×</button>
+            <h3>📅 Detalhes da Reserva</h3>
+            <div class="form-row" style="margin-bottom: 1rem;">
+                <label style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.2rem;">Sala</label>
+                <div id="view-res-room" style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary);">—</div>
+            </div>
+            <div class="form-row" style="margin-bottom: 1rem;">
+                <label style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.2rem;">Reservado por</label>
+                <div id="view-res-user" style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">—</div>
+            </div>
+            <div class="form-row-half" style="margin-bottom: 1rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.2rem;">Início</label>
+                    <div id="view-res-start" style="font-size: 0.95rem; color: var(--text-primary);">—</div>
+                </div>
+                <div>
+                    <label style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.2rem;">Fim</label>
+                    <div id="view-res-end" style="font-size: 0.95rem; color: var(--text-primary);">—</div>
+                </div>
+            </div>
+            <div class="form-row" style="margin-bottom: 1.5rem;">
+                <label style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.2rem;">Observações</label>
+                <div id="view-res-notes" style="font-size: 0.95rem; color: var(--text-primary); background: rgba(0, 0, 0, 0.05); padding: 0.75rem; border-radius: var(--radius-md); min-height: 60px; white-space: pre-wrap; border: 1px solid var(--border); margin-top: 0.25rem;">—</div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeReservationDetailsModal()">Fechar</button>
+                <button class="btn btn-danger" id="btn-cancel-reservation" style="display: none;">Cancelar Reserva</button>
             </div>
         </div>
     </div>

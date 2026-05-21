@@ -357,7 +357,7 @@ async function fetchEvents(info, successCallback, failureCallback) {
     let { data, error } = await _supabase
         .from('reservations')
         .select(`
-            id, room_number, start_time, end_time, user_id,
+            id, room_number, start_time, end_time, user_id, notes,
             profiles ( full_name )
         `);
 
@@ -369,7 +369,7 @@ async function fetchEvents(info, successCallback, failureCallback) {
             console.log("🛠 Iniciando fallback: buscando reservas sem detalhes de perfil...");
             const { data: fallbackData, error: fallbackError } = await _supabase
                 .from('reservations')
-                .select('id, room_number, start_time, end_time, user_id');
+                .select('id, room_number, start_time, end_time, user_id, notes');
 
             if (fallbackError) {
                 console.error("Erro no fallback de reservas:", fallbackError);
@@ -391,7 +391,12 @@ async function fetchEvents(info, successCallback, failureCallback) {
             start: res.start_time,
             end: res.end_time,
             backgroundColor: getRoomColor(res.room_number),
-            extendedProps: { user_id: res.user_id, room_number: res.room_number }
+            extendedProps: { 
+                user_id: res.user_id, 
+                room_number: res.room_number,
+                user_name: userName,
+                notes: res.notes || ''
+            }
         };
     });
 
@@ -405,13 +410,68 @@ function getRoomColor(room) {
 async function handleEventClick(info) {
     const event = info.event;
     const userId = event.extendedProps.user_id;
+    const userName = event.extendedProps.user_name || 'Usuário';
+    const roomNumber = event.extendedProps.room_number;
+    const notes = event.extendedProps.notes || '';
 
-    // Only allow owner or admin to delete
-    if (currentUser.id !== userId && currentRole !== 'admin') {
-        toast('Você só pode cancelar suas próprias reservas.', 'info');
-        return;
+    const roomInfo = ROOM_DETAILS[roomNumber];
+    const roomName = roomInfo ? roomInfo.name : `Sala ${roomNumber}`;
+
+    // Helper para formatar data local
+    const formatDate = (date) => {
+        if (!date) return '—';
+        return new Date(date).toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    // Preencher campos do modal de detalhes
+    document.getElementById('view-res-room').textContent = roomName;
+    document.getElementById('view-res-user').textContent = userName;
+    document.getElementById('view-res-start').textContent = formatDate(event.start);
+    document.getElementById('view-res-end').textContent = formatDate(event.end);
+    
+    const notesEl = document.getElementById('view-res-notes');
+    if (notes) {
+        notesEl.textContent = notes;
+        notesEl.style.fontStyle = 'normal';
+        notesEl.style.color = 'var(--text-primary)';
+    } else {
+        notesEl.textContent = 'Nenhuma observação informada.';
+        notesEl.style.fontStyle = 'italic';
+        notesEl.style.color = 'var(--text-muted)';
     }
 
+    // Configurar botão de cancelamento dependendo de quem está logado
+    const cancelBtn = document.getElementById('btn-cancel-reservation');
+    const isOwnerOrAdmin = currentUser && (currentUser.id === userId || currentRole === 'admin');
+    
+    if (isOwnerOrAdmin) {
+        cancelBtn.style.display = 'inline-flex';
+        // Resetar listeners clonando o botão
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        newCancelBtn.addEventListener('click', () => {
+            closeReservationDetailsModal();
+            confirmCancelReservation(event);
+        });
+    } else {
+        cancelBtn.style.display = 'none';
+    }
+
+    // Exibir o modal de detalhes
+    document.getElementById('reservation-details-modal').classList.add('visible');
+}
+
+function closeReservationDetailsModal() {
+    document.getElementById('reservation-details-modal').classList.remove('visible');
+}
+
+function confirmCancelReservation(event) {
     openConfirmModal(
         'Cancelar Reserva',
         `Deseja cancelar a reserva <span class="confirm-highlight">${event.title}</span>?`,
@@ -538,6 +598,8 @@ function closeBookingModal() {
     document.getElementById('booking-modal').classList.remove('visible');
     document.getElementById('start-time').value = '';
     document.getElementById('end-time').value = '';
+    const notesEl = document.getElementById('booking-notes');
+    if (notesEl) notesEl.value = '';
 }
 
 async function saveReservation() {
@@ -547,6 +609,7 @@ async function saveReservation() {
         const room = document.getElementById('room-select').value;
         const start = document.getElementById('start-time').value;
         const end = document.getElementById('end-time').value;
+        const notes = document.getElementById('booking-notes') ? document.getElementById('booking-notes').value.trim() : '';
 
         if (!room || !start || !end) return toast("Preencha todos os campos.", "error");
 
@@ -566,7 +629,7 @@ async function saveReservation() {
         btn.disabled = true;
         btn.innerHTML = '<span class="loading-spinner"></span> Confirmando...';
 
-        console.log("💾 Salvando reserva...", { room, start, end, user_id: currentUser.id });
+        console.log("💾 Salvando reserva...", { room, start, end, user_id: currentUser.id, notes });
 
         // Converte os horários locais do formulário para o formato ISO preservando o fuso local
         const getLocalISO = (dateStr) => {
@@ -601,7 +664,13 @@ async function saveReservation() {
         }
 
         const { error } = await _supabase.from('reservations').insert([
-            { user_id: currentUser.id, room_number: parseInt(room), start_time: startISO, end_time: endISO }
+            { 
+                user_id: currentUser.id, 
+                room_number: parseInt(room), 
+                start_time: startISO, 
+                end_time: endISO,
+                notes: notes || null
+            }
         ]);
 
         if (error) {
