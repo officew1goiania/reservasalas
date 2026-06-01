@@ -1152,3 +1152,74 @@ function renderRooms() {
         `;
     }).join('');
 }
+
+// =============================================
+//  WORLD CUP THEME MANAGEMENT (BRASIL)
+// =============================================
+
+function generateWorldCupFlags() {
+    // Remove existing flag containers to prevent duplicates
+    document.querySelectorAll('.worldcup-flags-container').forEach(el => el.remove());
+
+    if (!document.body.classList.contains('theme-worldcup')) {
+        return;
+    }
+
+    const targets = [
+        { selector: '#sidebar', count: 8 },
+        { selector: '.main-content', count: 20 },
+        { selector: '.login-card', count: 12 }
+    ];
+
+    targets.forEach(({ selector, count }) => {
+        const container = document.querySelector(selector);
+        if (!container) return;
+
+        const flagsContainer = document.createElement('div');
+        flagsContainer.className = 'worldcup-flags-container';
+
+        const colors = ['green', 'yellow', 'blue'];
+        for (let i = 0; i < count; i++) {
+            const flag = document.createElement('div');
+            flag.className = `worldcup-flag ${colors[i % 3]}`;
+            flagsContainer.appendChild(flag);
+        }
+
+        // Prepend so the flags hang above all other children
+        container.insertBefore(flagsContainer, container.firstChild);
+    });
+}
+
+function toggleWorldCupTheme() {
+    const isWorldCup = document.body.classList.contains('theme-worldcup');
+    if (isWorldCup) {
+        document.body.classList.remove('theme-worldcup');
+        localStorage.setItem('worldcup-theme', 'disabled');
+        toast('Tema padrão restaurado.', 'info');
+    } else {
+        document.body.classList.add('theme-worldcup');
+        localStorage.setItem('worldcup-theme', 'enabled');
+        toast('⚽ Tema da Copa do Mundo Ativado! Rumo ao Hexa! 🇧🇷', 'success');
+    }
+
+    generateWorldCupFlags();
+}
+
+// Auto-run initialization
+(function initWorldCupTheme() {
+    const themePref = localStorage.getItem('worldcup-theme');
+    
+    // Enable by default unless explicitly disabled by the user
+    if (themePref !== 'disabled') {
+        document.body.classList.add('theme-worldcup');
+    } else {
+        document.body.classList.remove('theme-worldcup');
+    }
+
+    // Run flags generation once the DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', generateWorldCupFlags);
+    } else {
+        generateWorldCupFlags();
+    }
+})();

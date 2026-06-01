@@ -88,6 +88,12 @@
                         <div class="user-role" id="sidebar-user-role">—</div>
                     </div>
                 </div>
+                <div class="theme-toggle-container">
+                    <button class="theme-toggle-btn" onclick="toggleWorldCupTheme()">
+                        <span>🇧🇷 Tema Copa</span>
+                        <div class="theme-toggle-switch"></div>
+                    </button>
+                </div>
                 <button class="btn btn-secondary btn-sm btn-full" onclick="logout()">
                     Sair
                 </button>
@@ -368,7 +374,13 @@
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
 
-        const COLORS = ['#0d9488', '#0f9e91', '#d4a853', '#b48530', '#1aab9b'];
+        const standardColors = ['#0d9488', '#0f9e91', '#d4a853', '#b48530', '#1aab9b'];
+        const worldCupColors = ['#009739', '#FFDF00', '#002783', '#007a2e', '#005c22'];
+
+        function getColors() {
+            return document.body.classList.contains('theme-worldcup') ? worldCupColors : standardColors;
+        }
+
         const NODE_COUNT = 70;
         const CONNECTION_DIST = 160;
         const MOUSE_STRENGTH = 60;
@@ -381,14 +393,15 @@
         }
 
         function mkNode() {
-            const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+            const colors = getColors();
+            const colorIndex = Math.floor(Math.random() * colors.length);
             return {
                 x: Math.random() * W,
                 y: Math.random() * H,
                 vx: (Math.random() - 0.5) * 0.35,
                 vy: (Math.random() - 0.5) * 0.35,
                 r: Math.random() * 2 + 1,
-                color,
+                colorIndex,
                 depth: Math.random() * 0.6 + 0.4
             };
         }
@@ -400,6 +413,8 @@
 
         function draw() {
             ctx.clearRect(0, 0, W, H);
+
+            const activeColors = getColors();
 
             // parallax offset per node based on mouse
             const cx = W / 2, cy = H / 2;
@@ -423,7 +438,8 @@
                         ctx.beginPath();
                         ctx.moveTo(pos[i].x, pos[i].y);
                         ctx.lineTo(pos[j].x, pos[j].y);
-                        ctx.strokeStyle = pos[i].n.color + Math.round(alpha * 255).toString(16).padStart(2, '0');
+                        const baseColor = activeColors[pos[i].n.colorIndex];
+                        ctx.strokeStyle = baseColor + Math.round(alpha * 255).toString(16).padStart(2, '0');
                         ctx.lineWidth = 0.8;
                         ctx.stroke();
                     }
@@ -434,7 +450,8 @@
             pos.forEach(({ x, y, n }) => {
                 ctx.beginPath();
                 ctx.arc(x, y, n.r, 0, Math.PI * 2);
-                ctx.fillStyle = n.color + 'cc';
+                const baseColor = activeColors[n.colorIndex];
+                ctx.fillStyle = baseColor + 'cc';
                 ctx.fill();
             });
 
