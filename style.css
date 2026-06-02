@@ -182,15 +182,13 @@ body {
     width: 60px;
     height: 60px;
     margin: 0 auto 1.2rem;
-    background: linear-gradient(135deg, var(--teal), var(--gold));
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
     border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: #fff;
-    box-shadow: 0 4px 20px var(--accent-glow);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 .login-card h1 {
@@ -497,15 +495,14 @@ label {
 .sidebar-brand .brand-dot {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, var(--teal), var(--gold));
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 800;
-    font-size: 1rem;
-    color: #fff;
     flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .sidebar-brand h2 {
@@ -1733,4 +1730,83 @@ body.theme-worldcup .fc {
 
 body.theme-worldcup .fc .fc-timegrid-col.fc-day-today {
     background: rgba(0, 151, 57, 0.05) !important;
+}
+
+/* ===================================================
+   LOGO SVG AND STAMPS (SELOS) STYLE
+   =================================================== */
+
+.brand-logo-svg {
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+    fill: var(--teal);
+    transition: fill var(--transition);
+}
+
+/* Login Selos */
+.login-selos {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    margin-top: -0.5rem;
+}
+
+.selo-badge {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.12));
+    transition: transform var(--transition);
+}
+
+.selo-badge:hover {
+    transform: scale(1.1) translateY(-2px);
+}
+
+/* Sidebar Brand Selos */
+.sidebar-brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.sidebar-selos {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.selo-sidebar {
+    height: 18px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+    transition: transform var(--transition);
+}
+
+.selo-sidebar:hover {
+    transform: scale(1.15);
+}
+
+/* Mobile Header Selos */
+.mobile-selos {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.selo-mobile {
+    height: 22px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+    transition: transform var(--transition);
+}
+
+.selo-mobile:hover {
+    transform: scale(1.1);
 }
