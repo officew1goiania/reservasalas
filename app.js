@@ -774,6 +774,11 @@ function renderUsers(users) {
                                     onclick="toggleUserStatus('${user.id}', '${status}')">
                                 ${status === 'active' ? '🚫' : '✅'}
                             </button>
+                            <button class="btn btn-danger btn-icon" 
+                                    title="Excluir" 
+                                    onclick="deleteUser('${user.id}')">
+                                🗑️
+                            </button>
                         ` : ''}
                     </div>
                 </td>
@@ -945,6 +950,48 @@ async function toggleUserStatus(userId, currentStatus) {
             } else {
                 toast(`Usuário ${action === 'desativar' ? 'desativado' : 'ativado'}!`, 'success');
                 loadUsers();
+            }
+        }
+    );
+}
+
+async function deleteUser(userId) {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return;
+
+    openConfirmModal(
+        `🗑️ Excluir Usuário`,
+        `Deseja realmente excluir permanentemente o usuário <span class="confirm-highlight">${escapeHtml(user.full_name || '')}</span> do banco de dados?<br><br><span style="color: #f87171; font-size: 0.85rem;">⚠️ Atenção: Esta ação também excluirá todas as reservas associadas a este usuário.</span>`,
+        async () => {
+            try {
+                // 1. Excluir reservas do usuário para evitar erro de chave estrangeira
+                const { error: resError } = await _supabase
+                    .from('reservations')
+                    .delete()
+                    .eq('user_id', userId);
+
+                if (resError) {
+                    console.error("Erro ao deletar reservas do usuário:", resError);
+                    toast('Erro ao excluir reservas: ' + resError.message, 'error');
+                    return;
+                }
+
+                // 2. Excluir perfil do usuário
+                const { error: profileError } = await _supabase
+                    .from('profiles')
+                    .delete()
+                    .eq('id', userId);
+
+                if (profileError) {
+                    console.error("Erro ao deletar perfil do usuário:", profileError);
+                    toast('Erro ao excluir usuário: ' + profileError.message, 'error');
+                } else {
+                    toast('Usuário excluído com sucesso!', 'success');
+                    loadUsers();
+                }
+            } catch (err) {
+                console.error("Erro inesperado ao deletar usuário:", err);
+                toast('Erro técnico ao excluir usuário. Verifique o console.', 'error');
             }
         }
     );
