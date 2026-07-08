@@ -262,6 +262,8 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
         if (!calendar) initCalendar();
         else calendar.refetchEvents();
 
+        setupRealtimeListener();
+
         // Load global settings
         loadGlobalSettings();
 
@@ -272,6 +274,7 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
         currentProfile = null;
         currentRole = null;
         if (calendar) { calendar.destroy(); calendar = null; }
+        removeRealtimeListener();
     }
 });
 
@@ -1198,4 +1201,35 @@ function renderRooms() {
             </div>
         `;
     }).join('');
+}
+
+// =============================================
+//  SUPABASE REALTIME LISTENER
+// =============================================
+
+let realtimeChannel = null;
+
+function setupRealtimeListener() {
+    if (realtimeChannel) return; // Already listening
+
+    console.log("📡 Ativando ouvinte Realtime do Supabase...");
+    realtimeChannel = _supabase
+        .channel('realtime-reservations')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'reservations' }, (payload) => {
+            console.log("🔄 Alteração detectada no banco via Realtime:", payload);
+            if (calendar) {
+                calendar.refetchEvents();
+            }
+        })
+        .subscribe((status) => {
+            console.log(`📡 Status da conexão Realtime: ${status}`);
+        });
+}
+
+function removeRealtimeListener() {
+    if (realtimeChannel) {
+        console.log("🔌 Desativando ouvinte Realtime...");
+        _supabase.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+    }
 }
