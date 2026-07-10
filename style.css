@@ -147,18 +147,80 @@ body {
 #login-screen {
     justify-content: center;
     align-items: center;
-    background: #f8fafc;
+    background: linear-gradient(135deg, #070b12 0%, #0c1220 50%, #06090f 100%);
     position: relative;
     overflow: hidden;
 }
 
-#login-canvas {
+/* ---------- Background Glowing Logo ---------- */
+.login-bg-logo-container {
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80vw;
+    max-width: 850px;
+    height: auto;
+    z-index: 0;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.8;
+    animation: floatLogo 12s ease-in-out infinite alternate;
+}
+
+.login-bg-logo-svg {
     width: 100%;
     height: 100%;
-    z-index: 0;
+    overflow: visible;
+}
+
+.login-bg-logo-path {
+    fill: none;
+    stroke: url(#logo-grad);
+    stroke-width: 5px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0;
+    filter: drop-shadow(0 0 6px rgba(13, 148, 136, 0.4)) drop-shadow(0 0 16px rgba(212, 168, 83, 0.2));
+}
+
+@keyframes drawBgLogo {
+    0% {
+        stroke-dashoffset: var(--logo-len, 4000);
+        opacity: 0;
+    }
+    15% {
+        opacity: 0.75;
+    }
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 0.7;
+    }
+}
+
+@keyframes pulseGlow {
+    0% {
+        filter: drop-shadow(0 0 8px rgba(13, 148, 136, 0.7)) drop-shadow(0 0 20px rgba(212, 168, 83, 0.4));
+        opacity: 0.7;
+    }
+    100% {
+        filter: drop-shadow(0 0 18px rgba(13, 148, 136, 1)) drop-shadow(0 0 35px rgba(212, 168, 83, 0.6));
+        opacity: 0.85;
+    }
+}
+
+@keyframes floatLogo {
+    0% {
+        transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    }
+    50% {
+        transform: translate(-50%, -48%) scale(1.03) rotate(0.4deg);
+    }
+    100% {
+        transform: translate(-50%, -52%) scale(0.97) rotate(-0.4deg);
+    }
 }
 
 
