@@ -205,38 +205,31 @@ body {
     filter: drop-shadow(0 0 6px rgba(13, 148, 136, 0.4)) drop-shadow(0 0 16px rgba(212, 168, 83, 0.2));
 }
 
-/* Linhas de Conexão */
-.connect-line {
-    stroke: rgba(13, 148, 136, 0.35);
-    stroke-width: 2.5px;
-    stroke-dasharray: 400;
-    stroke-dashoffset: 400;
-    stroke-linecap: round;
+/* Padrão Repetitivo de Fundo (Watermark Constellation) */
+.pattern-group {
     opacity: 0;
-    animation: drawLine 1.5s ease-out 5s forwards;
+    transform: scale(0.95);
+    transform-origin: 500px 248px;
+    animation: fadeInPattern 2.5s cubic-bezier(0.25, 1, 0.5, 1) 4.5s forwards;
 }
 
-/* Ícones Secundários */
-.icons-group .icon-path,
-.icons-group .icon-circle-outline {
+.pattern-group use {
     fill: none;
     stroke: url(#logo-grad);
     stroke-width: 3.5px;
     stroke-linecap: round;
     stroke-linejoin: round;
-    stroke-dasharray: 280;
-    stroke-dashoffset: 280;
-    opacity: 0;
-    filter: drop-shadow(0 0 5px rgba(13, 148, 136, 0.5)) drop-shadow(0 0 12px rgba(212, 168, 83, 0.3));
-    animation: drawIcon 2s cubic-bezier(0.25, 1, 0.5, 1) 5.8s forwards;
 }
 
-.icons-group .icon-circle {
-    fill: #d4a853;
-    opacity: 0;
-    transform: scale(0);
-    transform-origin: center;
-    animation: popCircle 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 7.2s forwards;
+.pattern-group circle {
+    fill: #d4a853 !important;
+}
+
+@keyframes fadeInPattern {
+    to {
+        opacity: 0.16;
+        transform: scale(1);
+    }
 }
 
 .visual-panel-footer {
@@ -358,33 +351,7 @@ body {
     }
 }
 
-@keyframes drawLine {
-    to {
-        stroke-dashoffset: 0;
-        opacity: 1;
-    }
-}
 
-@keyframes drawIcon {
-    0% {
-        stroke-dashoffset: 280;
-        opacity: 0;
-    }
-    20% {
-        opacity: 1;
-    }
-    100% {
-        stroke-dashoffset: 0;
-        opacity: 0.85;
-    }
-}
-
-@keyframes popCircle {
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
 
 @keyframes pulseGlow {
     0% {
