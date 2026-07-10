@@ -145,28 +145,41 @@ body {
 }
 
 #login-screen {
-    justify-content: center;
-    align-items: center;
-    background: linear-gradient(135deg, #070b12 0%, #0c1220 50%, #06090f 100%);
+    display: flex;
+    flex-direction: row;
+    min-height: 100vh;
+    background: #070b12;
     position: relative;
     overflow: hidden;
 }
 
-/* ---------- Background Glowing Logo ---------- */
+/* ---------- Coluna Esquerda: Painel Visual ---------- */
+.login-visual-panel {
+    flex: 1;
+    position: relative;
+    background: linear-gradient(135deg, #070b12 0%, #0c1220 50%, #06090f 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    padding: 3rem;
+}
+
 .login-bg-logo-container {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 80vw;
-    max-width: 850px;
+    width: 75%;
+    max-width: 700px;
     height: auto;
     z-index: 0;
     pointer-events: none;
     display: flex;
     justify-content: center;
     align-items: center;
-    opacity: 0.8;
+    opacity: 0.85;
     animation: floatLogo 12s ease-in-out infinite alternate;
 }
 
@@ -186,6 +199,99 @@ body {
     filter: drop-shadow(0 0 6px rgba(13, 148, 136, 0.4)) drop-shadow(0 0 16px rgba(212, 168, 83, 0.2));
 }
 
+.visual-panel-footer {
+    position: absolute;
+    bottom: 2.5rem;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.88rem;
+    text-align: center;
+    letter-spacing: 0.05em;
+    animation: fadeIn 1.5s ease both 0.5s;
+}
+
+/* ---------- Coluna Direita: Painel de Login ---------- */
+.login-sidebar-panel {
+    width: 460px;
+    background: rgba(10, 15, 26, 0.75);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem 3rem;
+    position: relative;
+    z-index: 10;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.25);
+    animation: slideLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.login-sidebar-content {
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+}
+
+.login-sidebar-panel .brand-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.login-sidebar-panel .brand-icon:hover {
+    transform: scale(1.05);
+}
+
+.login-sidebar-panel h1 {
+    font-size: 2.1rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #0d9488, #d4a853);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.02em;
+}
+
+.login-sidebar-panel .subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 2.5rem;
+}
+
+.login-sidebar-panel .login-instruction {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+}
+
+.login-sidebar-panel .error-message {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+    padding: 0.65rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.login-sidebar-panel .error-message.visible {
+    display: block;
+}
+
+/* ---------- Keyframes & Responsividade ---------- */
 @keyframes drawBgLogo {
     0% {
         stroke-dashoffset: var(--logo-len, 4000);
@@ -223,73 +329,58 @@ body {
     }
 }
 
-
-
-.login-card {
-    background: var(--bg-glass);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--border);
-    padding: 3rem 2.5rem;
-    border-radius: var(--radius-lg);
-    width: 100%;
-    max-width: 420px;
-    text-align: center;
-    animation: slideUp 0.6s ease-out;
-    position: relative;
-    z-index: 1;
+@keyframes slideLeft {
+    from {
+        opacity: 0;
+        transform: translateX(80px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
-.login-card .brand-icon {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 1.2rem;
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+@keyframes slideUpMobile {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.login-card h1 {
-    font-size: 1.8rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, var(--teal-light), var(--gold));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 0.3rem;
-}
-
-.login-card .subtitle {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    margin-bottom: 2rem;
-}
-
-.login-instruction {
-    font-size: 0.88rem;
-    color: var(--text-secondary);
-    margin-bottom: 2.2rem;
-    line-height: 1.5;
-}
-
-.login-card .error-message {
-    background: rgba(239, 68, 68, 0.12);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #fca5a5;
-    padding: 0.65rem 1rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.85rem;
-    margin-bottom: 1rem;
-    display: none;
-    animation: fadeIn 0.3s ease;
-}
-
-.login-card .error-message.visible {
-    display: block;
+@media (max-width: 768px) {
+    #login-screen {
+        flex-direction: column;
+    }
+    
+    .login-visual-panel {
+        height: 35vh;
+        width: 100%;
+        padding: 1.5rem;
+        flex: none;
+    }
+    
+    .login-bg-logo-container {
+        width: 60%;
+        max-width: 320px;
+    }
+    
+    .visual-panel-footer {
+        display: none;
+    }
+    
+    .login-sidebar-panel {
+        width: 100%;
+        flex: 1;
+        padding: 3rem 1.5rem;
+        box-shadow: none;
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        animation: slideUpMobile 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
 }
 
 /* ---------- Form Controls ---------- */
