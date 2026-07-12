@@ -84,7 +84,12 @@ async function loginWithGoogle() {
     const { error } = await _supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: redirectUrl
+            redirectTo: redirectUrl,
+            scopes: 'https://www.googleapis.com/auth/calendar.events',
+            queryParams: {
+                access_type: 'offline',
+                prompt: 'consent'
+            }
         }
     });
 
@@ -127,6 +132,12 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
 
     if (session) {
         currentUser = session.user;
+        
+        if (session.provider_token) {
+            localStorage.setItem('google_provider_token', session.provider_token);
+            localStorage.setItem('google_provider_token_expires_at', (Date.now() + 3600 * 1000).toString());
+            console.log("💾 Token do Google Agenda persistido.");
+        }
 
         // Tentar buscar o perfil
         let profile = null;
@@ -481,6 +492,26 @@ function confirmCancelReservation(event) {
         async () => {
             console.log("Iniciando exclusão da reserva ID:", event.id);
             try {
+                // --- Google Calendar Sync (Excluir antes de deletar do Supabase) ---
+                const googleToken = getGoogleAccessToken();
+                if (googleToken && event.start && event.end) {
+                    try {
+                        const startISO = typeof event.start.toISOString === 'function' ? event.start.toISOString() : new Date(event.start).toISOString();
+                        const endISO = typeof event.end.toISOString === 'function' ? event.end.toISOString() : new Date(event.end).toISOString();
+                        const roomNumber = event.extendedProps?.room_number;
+                        
+                        console.log("📅 Procurando evento no Google Agenda...", { roomNumber, startISO, endISO });
+                        const gEvent = await findGoogleCalendarEvent(googleToken, roomNumber, startISO, endISO);
+                        if (gEvent) {
+                            console.log("📅 Deletando evento no Google Agenda...", gEvent.id);
+                            await deleteGoogleCalendarEvent(googleToken, gEvent.id);
+                            toast("Reserva removida do seu Google Agenda.", "success");
+                        }
+                    } catch (gErr) {
+                        console.error("❌ Falha ao excluir do Google Agenda:", gErr);
+                    }
+                }
+
                 const { error } = await _supabase.from('reservations').delete().eq('id', event.id);
                 if (error) {
                     console.error("Erro Supabase Delete:", error);
@@ -533,6 +564,7 @@ function setupRoomSelect(selectedId = null) {
 
 function openBookingModal(roomId = null) {
     setupRoomSelect(roomId);
+    updateGoogleCalendarSyncUI();
     document.getElementById('booking-modal').classList.add('visible');
 }
 
@@ -688,6 +720,21 @@ async function saveReservation() {
             toast("Reserva concluída!", "success");
             closeBookingModal();
             if (calendar) calendar.refetchEvents();
+
+            // --- Google Calendar Sync ---
+            const syncCheckbox = document.getElementById('sync-google-calendar');
+            const googleToken = getGoogleAccessToken();
+            if (syncCheckbox && syncCheckbox.checked && googleToken) {
+                try {
+                    const roomName = ROOM_DETAILS[room]?.name || `Sala ${room}`;
+                    console.log("📅 Sincronizando com Google Agenda...", roomName);
+                    await createGoogleCalendarEvent(googleToken, roomName, startISO, endISO, notes);
+                    toast("Reserva adicionada ao seu Google Agenda!", "success");
+                } catch (gErr) {
+                    console.error("❌ Falha na sincronização com Google Agenda:", gErr);
+                    toast("Reserva criada, mas falhou ao adicionar no Google Agenda.", "info");
+                }
+            }
         }
     } catch (err) {
         console.error("❌ Erro inesperado em saveReservation:", err);
@@ -1233,3 +1280,129 @@ function removeRealtimeListener() {
         realtimeChannel = null;
     }
 }
+
+// =============================================
+//  GOOGLE CALENDAR INTEGRATION HELPERS
+// =============================================
+function getGoogleAccessToken() {
+    const token = localStorage.getItem('google_provider_token');
+    const expiresAt = localStorage.getItem('google_provider_token_expires_at');
+    if (!token) return null;
+    if (expiresAt && Date.now() > parseInt(expiresAt)) {
+        console.warn("⚠️ Token do Google Agenda expirado.");
+        return null;
+    }
+    return token;
+}
+
+function reconnectGoogleCalendar(e) {
+    if (e) e.preventDefault();
+    loginWithGoogle();
+}
+
+function updateGoogleCalendarSyncUI() {
+    const token = getGoogleAccessToken();
+    const statusEl = document.getElementById('google-calendar-status');
+    const noticeEl = document.getElementById('google-calendar-auth-notice');
+    const checkboxEl = document.getElementById('sync-google-calendar');
+    
+    if (!statusEl || !noticeEl || !checkboxEl) return;
+    
+    if (token) {
+        statusEl.textContent = 'Conectado';
+        statusEl.style.color = '#10b981';
+        statusEl.style.background = 'rgba(16, 185, 129, 0.1)';
+        noticeEl.style.display = 'none';
+        checkboxEl.disabled = false;
+        if (localStorage.getItem('google_sync_enabled') !== 'false') {
+            checkboxEl.checked = true;
+        }
+    } else {
+        statusEl.textContent = 'Desconectado';
+        statusEl.style.color = '#9ca3af';
+        statusEl.style.background = 'rgba(0, 0, 0, 0.05)';
+        noticeEl.style.display = 'block';
+        checkboxEl.checked = false;
+        checkboxEl.disabled = true;
+    }
+}
+
+async function createGoogleCalendarEvent(accessToken, roomName, startISO, endISO, notes) {
+    const url = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+    const eventData = {
+        summary: `Reserva: ${roomName}`,
+        description: notes || 'Sem observações.',
+        start: {
+            dateTime: startISO,
+        },
+        end: {
+            dateTime: endISO,
+        },
+        reminders: {
+            useDefault: true
+        }
+    };
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventData)
+    });
+
+    if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error?.message || 'Erro desconhecido');
+    }
+
+    return await response.json();
+}
+
+async function findGoogleCalendarEvent(accessToken, roomNumber, startISO, endISO) {
+    const timeMin = startISO;
+    const timeMax = endISO;
+    const query = `Reserva: Sala ${roomNumber}`;
+    
+    const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${encodeURIComponent(timeMin)}&timeMax=${encodeURIComponent(timeMax)}&q=${encodeURIComponent(query)}`;
+    
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`
+        }
+    });
+    
+    if (!response.ok) {
+        throw new Error('Erro ao buscar evento');
+    }
+    
+    const data = await response.json();
+    return data.items && data.items.length > 0 ? data.items[0] : null;
+}
+
+async function deleteGoogleCalendarEvent(accessToken, eventId) {
+    const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`;
+    
+    const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`
+        }
+    });
+    
+    if (!response.ok && response.status !== 404) {
+        throw new Error('Erro ao deletar evento');
+    }
+}
+
+// Inicializar eventos do checkbox de sincronização
+(function initGoogleAgendaEvents() {
+    const checkboxEl = document.getElementById('sync-google-calendar');
+    if (checkboxEl) {
+        checkboxEl.addEventListener('change', (e) => {
+            localStorage.setItem('google_sync_enabled', e.target.checked ? 'true' : 'false');
+        });
+    }
+})();
