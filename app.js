@@ -667,14 +667,16 @@ async function loadBannersConfigPage() {
             const { data: buckets, error: bucketsErr } = await _supabase.storage.listBuckets();
             if (bucketsErr) {
                 console.warn("Erro ao listar buckets de storage:", bucketsErr.message);
-            } else {
-                const matched = buckets && buckets.find(b => b.name.toLowerCase() === 'banners');
+            } else if (buckets && buckets.length > 0) {
+                const matched = buckets.find(b => b.name.toLowerCase() === 'banners');
                 if (matched) {
                     storageBucketName = matched.name;
                     console.log(`[Storage] Caso do bucket detectado: ${storageBucketName}`);
                 } else {
                     toast("Aviso: O bucket público 'banners' não foi criado no Supabase Storage. Crie-o para habilitar upload.", "error");
                 }
+            } else {
+                console.log("[Storage] listBuckets retornou lista vazia (RLS pode estar restringindo a visualização). O bucket será verificado dinamicamente no envio.");
             }
         } catch (storageErr) {
             console.warn("Não foi possível validar a existência de buckets de storage:", storageErr);
@@ -831,25 +833,48 @@ async function handleBannerFileUpload(type) {
         const fileName = `${type}_banner_${Date.now()}.${fileExt}`;
         const filePath = `${fileName}`;
         console.log(`[Upload] Preparando upload para o caminho: ${filePath}`);
-
-        if (!_supabase) {
-            console.error("[Upload] Supabase client não está inicializado!");
-            throw new Error("Cliente Supabase não inicializado.");
-        }
-
+        
         console.log(`[Upload] Chamando _supabase.storage.from('${storageBucketName}').upload...`);
-        const { data, error } = await _supabase.storage
+        let uploadResult = await _supabase.storage
             .from(storageBucketName)
             .upload(filePath, file, {
                 cacheControl: '3600',
                 upsert: false
             });
 
-        console.log("[Upload] Chamada finalizada. Resposta do Supabase:", { data, error });
+        let data = uploadResult.data;
+        let error = uploadResult.error;
+
+        console.log("[Upload] Primeira tentativa finalizada. Resposta do Supabase:", { data, error });
+
+        // Se falhar e a busca do bucketName for a padrão em minúscula, tentamos outras variações de caixa
+        if (error && (error.message && (error.message.includes('bucket') || error.message.includes('Bucket') || error.message.includes('not found')))) {
+            const alternativeBuckets = ['BANNERS', 'Banners', 'banners'];
+            for (const altBucket of alternativeBuckets) {
+                if (altBucket === storageBucketName) continue;
+                console.log(`[Upload] Tentando alternativa no bucket: ${altBucket}`);
+                const retryResult = await _supabase.storage
+                    .from(altBucket)
+                    .upload(filePath, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+                
+                if (!retryResult.error) {
+                    storageBucketName = altBucket;
+                    data = retryResult.data;
+                    error = null;
+                    console.log(`[Upload] Sucesso com o bucket alternativo: ${storageBucketName}`);
+                    break;
+                } else {
+                    console.warn(`[Upload] Falhou também com ${altBucket}:`, retryResult.error.message);
+                }
+            }
+        }
 
         if (error) {
-            console.error("[Upload] Erro retornado pelo Supabase Storage:", error);
-            if (error.message && (error.message.includes('bucket') || error.message.includes('Bucket'))) {
+            console.error("[Upload] Erro definitivo retornado pelo Supabase Storage:", error);
+            if (error.message && (error.message.includes('bucket') || error.message.includes('Bucket') || error.message.includes('not found'))) {
                 toast("Erro: Certifique-se de que o bucket público 'banners' foi criado no Supabase.", "error");
             } else {
                 toast("Erro no upload: " + error.message, "error");
