@@ -553,10 +553,25 @@ function openBookingModal(roomId = null) {
 
 let topBannerConfig = { active: false, url: '', link: '' };
 let sidebarBannerConfig = { active: false, url: '', link: '' };
+let storageBucketName = 'banners'; // Default, resolved dynamically on start
 
 async function loadGlobalSettings() {
     try {
         console.log("🔍 Carregando configurações de banners...");
+
+        // Detectar o caso correto do bucket 'banners' no Supabase Storage
+        try {
+            const { data: buckets } = await _supabase.storage.listBuckets();
+            if (buckets) {
+                const matched = buckets.find(b => b.name.toLowerCase() === 'banners');
+                if (matched) {
+                    storageBucketName = matched.name;
+                    console.log(`[Storage] Caso do bucket detectado: ${storageBucketName}`);
+                }
+            }
+        } catch (bucketErr) {
+            console.warn("[Storage] Falha ao detectar buckets na inicialização:", bucketErr);
+        }
         
         // 1. Carregar Banner do Topo
         const { data: topData, error: topError } = await _supabase
@@ -653,8 +668,11 @@ async function loadBannersConfigPage() {
             if (bucketsErr) {
                 console.warn("Erro ao listar buckets de storage:", bucketsErr.message);
             } else {
-                const bucketExists = buckets && buckets.some(b => b.name === 'banners');
-                if (!bucketExists) {
+                const matched = buckets && buckets.find(b => b.name.toLowerCase() === 'banners');
+                if (matched) {
+                    storageBucketName = matched.name;
+                    console.log(`[Storage] Caso do bucket detectado: ${storageBucketName}`);
+                } else {
                     toast("Aviso: O bucket público 'banners' não foi criado no Supabase Storage. Crie-o para habilitar upload.", "error");
                 }
             }
@@ -819,9 +837,9 @@ async function handleBannerFileUpload(type) {
             throw new Error("Cliente Supabase não inicializado.");
         }
 
-        console.log("[Upload] Chamando _supabase.storage.from('banners').upload...");
+        console.log(`[Upload] Chamando _supabase.storage.from('${storageBucketName}').upload...`);
         const { data, error } = await _supabase.storage
-            .from('banners')
+            .from(storageBucketName)
             .upload(filePath, file, {
                 cacheControl: '3600',
                 upsert: false
@@ -831,7 +849,7 @@ async function handleBannerFileUpload(type) {
 
         if (error) {
             console.error("[Upload] Erro retornado pelo Supabase Storage:", error);
-            if (error.message && error.message.includes('bucket')) {
+            if (error.message && (error.message.includes('bucket') || error.message.includes('Bucket'))) {
                 toast("Erro: Certifique-se de que o bucket público 'banners' foi criado no Supabase.", "error");
             } else {
                 toast("Erro no upload: " + error.message, "error");
@@ -844,7 +862,7 @@ async function handleBannerFileUpload(type) {
 
         console.log("[Upload] Obtendo URL pública do arquivo...");
         const { data: publicUrlData } = _supabase.storage
-            .from('banners')
+            .from(storageBucketName)
             .getPublicUrl(filePath);
 
         const publicUrl = publicUrlData.publicUrl;
