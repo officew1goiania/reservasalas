@@ -248,6 +248,10 @@ _supabase.auth.onAuthStateChange(async (event, session) => {
             if (navUsuarios) {
                 navUsuarios.style.display = (currentRole === 'admin') ? 'flex' : 'none';
             }
+            const navBanners = document.getElementById('nav-banners');
+            if (navBanners) {
+                navBanners.style.display = (currentRole === 'admin') ? 'flex' : 'none';
+            }
 
         } else {
             console.error("❌ Erro fatal: Tentativa de atualizar UI sem perfil carregado.");
@@ -309,6 +313,13 @@ function navigateTo(page) {
         // Load data
         if (page === 'usuarios' && currentRole === 'admin') {
             loadUsers();
+        }
+        if (page === 'banners') {
+            if (currentRole !== 'admin') {
+                navigateTo('agenda');
+                return;
+            }
+            loadBannersConfigPage();
         }
         if (page === 'salas') {
             renderRooms();
@@ -537,61 +548,218 @@ function openBookingModal(roomId = null) {
 }
 
 // =============================================
-//  EVENT POPUP CONTROLS & SETTINGS
+//  BANNERS SYSTEM & SETTINGS
 // =============================================
 
-function openEventPopup() {
-    const popup = document.getElementById('event-popup');
-    if (popup) popup.classList.add('visible');
-}
-
-function closeEventPopup() {
-    const popup = document.getElementById('event-popup');
-    if (popup) popup.classList.remove('visible');
-}
-
-let globalBannerConfig = { active: false, url: '', link: '' };
+let topBannerConfig = { active: false, url: '', link: '' };
+let sidebarBannerConfig = { active: false, url: '', link: '' };
 
 async function loadGlobalSettings() {
     try {
-        const { data, error } = await _supabase
+        console.log("🔍 Carregando configurações de banners...");
+        
+        // 1. Carregar Banner do Topo
+        const { data: topData, error: topError } = await _supabase
             .from('app_settings')
             .select('value')
-            .eq('key', 'banner_config')
+            .eq('key', 'top_banner_config')
             .maybeSingle();
 
-        if (error) {
-            console.warn("Erro ao carregar configurações do banner (a tabela pode não existir ainda).", error.message);
-            return;
+        if (topError) {
+            console.warn("Erro ao carregar top_banner_config:", topError.message);
+        } else if (topData && topData.value) {
+            topBannerConfig = topData.value;
+            applyTopBannerConfig(topBannerConfig);
+        } else {
+            applyTopBannerConfig({ active: false, url: '', link: '' });
         }
 
-        if (data && data.value) {
-            globalBannerConfig = data.value;
-            applyBannerConfig(globalBannerConfig);
+        // 2. Carregar Banner Lateral
+        const { data: sidebarData, error: sidebarError } = await _supabase
+            .from('app_settings')
+            .select('value')
+            .eq('key', 'sidebar_banner_config')
+            .maybeSingle();
+
+        if (sidebarError) {
+            console.warn("Erro ao carregar sidebar_banner_config:", sidebarError.message);
+        } else if (sidebarData && sidebarData.value) {
+            sidebarBannerConfig = sidebarData.value;
+            applySidebarBannerConfig(sidebarBannerConfig);
+        } else {
+            applySidebarBannerConfig({ active: false, url: '', link: '' });
         }
+
     } catch (err) {
-        console.error("Exceção ao carregar configurações:", err);
+        console.error("Exceção ao carregar configurações globais:", err);
     }
 }
 
-function applyBannerConfig(config) {
-    const imgEl = document.getElementById('event-banner-img');
-    const linkEl = document.getElementById('event-banner-link');
+function applyTopBannerConfig(config) {
+    const container = document.getElementById('agenda-top-banner-container');
+    const imgEl = document.getElementById('agenda-top-banner-img');
+    const linkEl = document.getElementById('agenda-top-banner-link');
 
-    if (config.url) {
+    if (!container || !imgEl || !linkEl) return;
+
+    const isActive = config && (config.active === true || String(config.active) === 'true');
+    if (isActive && config.url) {
         imgEl.src = config.url;
-    }
-
-    if (config.link) {
-        linkEl.href = config.link;
-        linkEl.style.pointerEvents = 'auto';
+        if (config.link) {
+            linkEl.href = config.link;
+            linkEl.style.pointerEvents = 'auto';
+        } else {
+            linkEl.removeAttribute('href');
+            linkEl.style.pointerEvents = 'none';
+        }
+        container.classList.remove('hidden');
     } else {
-        linkEl.removeAttribute('href');
-        linkEl.style.pointerEvents = 'none';
+        container.classList.add('hidden');
+        imgEl.src = '';
+    }
+}
+
+function applySidebarBannerConfig(config) {
+    const container = document.getElementById('sidebar-banner-container');
+    const imgEl = document.getElementById('sidebar-banner-img');
+    const linkEl = document.getElementById('sidebar-banner-link');
+
+    if (!container || !imgEl || !linkEl) return;
+
+    const isActive = config && (config.active === true || String(config.active) === 'true');
+    if (isActive && config.url) {
+        imgEl.src = config.url;
+        if (config.link) {
+            linkEl.href = config.link;
+            linkEl.style.pointerEvents = 'auto';
+        } else {
+            linkEl.removeAttribute('href');
+            linkEl.style.pointerEvents = 'none';
+        }
+        container.classList.remove('hidden');
+    } else {
+        container.classList.add('hidden');
+        imgEl.src = '';
+    }
+}
+
+async function loadBannersConfigPage() {
+    try {
+        console.log("📂 Carregando página administrativa de banners...");
+        
+        const { data: settings, error } = await _supabase
+            .from('app_settings')
+            .select('*')
+            .in('key', ['top_banner_config', 'sidebar_banner_config']);
+
+        if (error) {
+            toast("Erro ao buscar configurações: " + error.message, "error");
+            return;
+        }
+
+        // Resetar formulário
+        document.getElementById('top-banner-active').checked = false;
+        document.getElementById('top-banner-url').value = '';
+        document.getElementById('top-banner-link').value = '';
+        updateBannerPreview('top');
+
+        document.getElementById('sidebar-banner-active').checked = false;
+        document.getElementById('sidebar-banner-url').value = '';
+        document.getElementById('sidebar-banner-link').value = '';
+        updateBannerPreview('sidebar');
+
+        if (settings) {
+            settings.forEach(item => {
+                const config = item.value;
+                if (!config) return;
+                
+                if (item.key === 'top_banner_config') {
+                    document.getElementById('top-banner-active').checked = (config.active === true || String(config.active) === 'true');
+                    document.getElementById('top-banner-url').value = config.url || '';
+                    document.getElementById('top-banner-link').value = config.link || '';
+                    updateBannerPreview('top');
+                } else if (item.key === 'sidebar_banner_config') {
+                    document.getElementById('sidebar-banner-active').checked = (config.active === true || String(config.active) === 'true');
+                    document.getElementById('sidebar-banner-url').value = config.url || '';
+                    document.getElementById('sidebar-banner-link').value = config.link || '';
+                    updateBannerPreview('sidebar');
+                }
+            });
+        }
+    } catch (err) {
+        console.error("Erro na página de banners:", err);
+        toast("Erro ao inicializar página de banners.", "error");
+    }
+}
+
+function updateBannerPreview(type) {
+    const urlInput = document.getElementById(`${type}-banner-url`);
+    const imgEl = document.getElementById(`${type}-banner-preview`);
+    const placeholderEl = document.getElementById(`${type}-banner-preview-placeholder`);
+
+    if (!urlInput || !imgEl || !placeholderEl) return;
+
+    const url = urlInput.value.trim();
+    if (url) {
+        imgEl.src = url;
+        imgEl.classList.remove('hidden');
+        placeholderEl.classList.add('hidden');
+    } else {
+        imgEl.src = '';
+        imgEl.classList.add('hidden');
+        placeholderEl.classList.remove('hidden');
+    }
+}
+
+async function saveSingleBanner(type, event) {
+    const active = document.getElementById(`${type}-banner-active`).checked;
+    const url = document.getElementById(`${type}-banner-url`).value.trim();
+    const link = document.getElementById(`${type}-banner-link`).value.trim();
+
+    if (active && !url) {
+        toast("Por favor, preencha a URL da imagem antes de ativar o banner.", "error");
+        return;
     }
 
-    if (config.active && String(config.active) === 'true') {
-        openEventPopup();
+    const key = (type === 'top') ? 'top_banner_config' : 'sidebar_banner_config';
+    const config = { active, url, link };
+
+    try {
+        const evt = event || window.event;
+        const btn = evt ? (evt.currentTarget || evt.target) : null;
+        const originalText = btn ? btn.textContent : 'Salvar';
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = 'Salvando...';
+        }
+
+        const { error } = await _supabase
+            .from('app_settings')
+            .upsert({ key, value: config }, { onConflict: 'key' });
+
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = originalText;
+        }
+
+        if (error) {
+            console.error(`Erro Supabase ao salvar banner ${type}:`, error);
+            toast("Erro ao salvar no banco de dados: " + error.message, "error");
+        } else {
+            toast("Configuração salva com sucesso!", "success");
+            
+            // Aplicar localmente e de imediato na UI
+            if (type === 'top') {
+                topBannerConfig = config;
+                applyTopBannerConfig(config);
+            } else if (type === 'sidebar') {
+                sidebarBannerConfig = config;
+                applySidebarBannerConfig(config);
+            }
+        }
+    } catch (err) {
+        console.error("Exceção ao salvar banner:", err);
+        toast("Erro técnico ao salvar.", "error");
     }
 }
 

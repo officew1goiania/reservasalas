@@ -17,15 +17,7 @@
 
     <!-- ============ TOAST CONTAINER ============ -->
     <div id="toast-container" class="toast-container"></div>
-<!-- ============ EVENT POPUP ============ -->
-    <div id="event-popup" class="modal-overlay">
-        <div class="modal-box" style="max-width: 600px; padding: 1.5rem;">
-            <button class="modal-close" onclick="closeEventPopup()">×</button>
-            <a id="event-banner-link" href="#" target="_blank" style="display: block; text-decoration: none; pointer-events: none;">
-                <img id="event-banner-img" src="C:/Users/ph_gr/.gemini/antigravity/brain/4bc26be5-a257-4fe7-8afd-a4be295b37cb/event_banner_1778089467128.png" alt="Evento" style="width:100%; height:auto; border-radius: var(--radius-md); display: block;"/>
-            </a>
-        </div>
-    </div>
+
 
     <!-- ============ LOGIN SCREEN ============ -->
     <div id="login-screen" class="screen">
@@ -179,7 +171,19 @@
                 <button class="nav-item" data-page="usuarios" id="nav-usuarios" onclick="navigateTo('usuarios')"
                     style="display:none;">
                     <span class="nav-icon">👥</span> Usuários
+                </button>
+                <button class="nav-item" data-page="banners" id="nav-banners" onclick="navigateTo('banners')"
+                    style="display:none;">
+                    <span class="nav-icon">📢</span> Banners
+                </button>
             </nav>
+
+            <!-- Banner Lateral -->
+            <div id="sidebar-banner-container" class="sidebar-banner-container hidden">
+                <a id="sidebar-banner-link" href="#" target="_blank">
+                    <img id="sidebar-banner-img" src="" alt="Banner Lateral">
+                </a>
+            </div>
 
             <div class="sidebar-footer">
                 <div class="user-card">
@@ -212,6 +216,12 @@
             <div id="page-agenda" class="page-content">
                 <div class="page-header">
                     <h1>Agenda</h1>
+                    <!-- Banner do Topo (Agenda) -->
+                    <div id="agenda-top-banner-container" class="top-banner-container hidden">
+                        <a id="agenda-top-banner-link" href="#" target="_blank">
+                            <img id="agenda-top-banner-img" src="" alt="Banner Agenda">
+                        </a>
+                    </div>
                     <div class="header-actions">
                         <button class="btn btn-secondary btn-icon" title="Atualizar Agenda" onclick="refreshCalendar()"
                             id="btn-refresh-calendar">
@@ -251,6 +261,98 @@
                 </div>
                 <div class="calendar-wrapper">
                     <div id="calendar"></div>
+                </div>
+            </div>
+
+            <!-- ====== PAGE: BANNERS ====== -->
+            <div id="page-banners" class="page-content hidden">
+                <div class="page-header">
+                    <h1>Gerenciamento de Banners</h1>
+                    <p class="subtitle">Anúncios, eventos e avisos importantes</p>
+                </div>
+
+                <div class="banners-grid">
+                    <!-- CARD 1: BANNER TOPO -->
+                    <div class="banner-card">
+                        <div class="banner-card-header">
+                            <span class="banner-icon">🔝</span>
+                            <div class="banner-title-group">
+                                <h3>Banner do Topo (Agenda)</h3>
+                                <span class="banner-badge">Topo da Agenda</span>
+                            </div>
+                        </div>
+                        <div class="banner-card-body">
+                            <div class="form-row-toggle">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="top-banner-active">
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label">Ativar este banner</span>
+                            </div>
+                            <div class="form-row">
+                                <label for="top-banner-url">URL da Imagem</label>
+                                <input type="url" id="top-banner-url" placeholder="https://exemplo.com/imagem.png" oninput="updateBannerPreview('top')">
+                            </div>
+                            <div class="form-row">
+                                <label for="top-banner-link">Link de Destino (Opcional)</label>
+                                <input type="url" id="top-banner-link" placeholder="https://exemplo.com/pagina-destino">
+                            </div>
+                            <div class="banner-info">
+                                ℹ️ <strong>Medida sugerida:</strong> 600x80 pixels (ou proporção horizontal equivalente).
+                            </div>
+                            <div class="banner-preview-box">
+                                <span class="preview-title">Visualização Prévia:</span>
+                                <div class="preview-container horizontal-preview">
+                                    <img id="top-banner-preview" class="hidden" src="" alt="Preview Topo">
+                                    <div id="top-banner-preview-placeholder" class="preview-placeholder">Nenhuma imagem carregada</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="banner-card-footer">
+                            <button class="btn btn-primary btn-full" onclick="saveSingleBanner('top')">Salvar Banner do Topo</button>
+                        </div>
+                    </div>
+
+                    <!-- CARD 2: BANNER LATERAL -->
+                    <div class="banner-card">
+                        <div class="banner-card-header">
+                            <span class="banner-icon">👈</span>
+                            <div class="banner-title-group">
+                                <h3>Banner Lateral</h3>
+                                <span class="banner-badge">Rodapé da Barra Lateral</span>
+                            </div>
+                        </div>
+                        <div class="banner-card-body">
+                            <div class="form-row-toggle">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="sidebar-banner-active">
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="toggle-label">Ativar este banner</span>
+                            </div>
+                            <div class="form-row">
+                                <label for="sidebar-banner-url">URL da Imagem</label>
+                                <input type="url" id="sidebar-banner-url" placeholder="https://exemplo.com/imagem.png" oninput="updateBannerPreview('sidebar')">
+                            </div>
+                            <div class="form-row">
+                                <label for="sidebar-banner-link">Link de Destino (Opcional)</label>
+                                <input type="url" id="sidebar-banner-link" placeholder="https://exemplo.com/pagina-destino">
+                            </div>
+                            <div class="banner-info">
+                                ℹ️ <strong>Medida sugerida:</strong> 230x230 pixels (ou proporção quadrada equivalente).
+                            </div>
+                            <div class="banner-preview-box">
+                                <span class="preview-title">Visualização Prévia:</span>
+                                <div class="preview-container square-preview">
+                                    <img id="sidebar-banner-preview" class="hidden" src="" alt="Preview Lateral">
+                                    <div id="sidebar-banner-preview-placeholder" class="preview-placeholder">Nenhuma imagem carregada</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="banner-card-footer">
+                            <button class="btn btn-primary btn-full" onclick="saveSingleBanner('sidebar')">Salvar Banner Lateral</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
