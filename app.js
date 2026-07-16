@@ -763,6 +763,75 @@ async function saveSingleBanner(type, event) {
     }
 }
 
+async function handleBannerFileUpload(type) {
+    const fileInput = document.getElementById(`${type}-banner-file`);
+    const filenameLabel = document.getElementById(`${type}-banner-filename`);
+    const urlInput = document.getElementById(`${type}-banner-url`);
+    const uploadBtn = document.getElementById(`${type}-banner-upload-btn`);
+
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) return;
+
+    const file = fileInput.files[0];
+    if (filenameLabel) {
+        filenameLabel.textContent = file.name;
+    }
+
+    const originalBtnText = uploadBtn ? uploadBtn.textContent : 'Carregar Imagem';
+    if (uploadBtn) {
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = 'Enviando...';
+    }
+
+    try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${type}_banner_${Date.now()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { data, error } = await _supabase.storage
+            .from('banners')
+            .upload(filePath, file);
+
+        if (error) {
+            console.error("Erro ao enviar arquivo para o Supabase Storage:", error);
+            if (error.message && error.message.includes('bucket')) {
+                toast("Erro: Certifique-se de que o bucket público 'banners' foi criado no Supabase.", "error");
+            } else {
+                toast("Erro no upload: " + error.message, "error");
+            }
+            if (uploadBtn) {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = originalBtnText;
+            }
+            if (filenameLabel) {
+                filenameLabel.textContent = 'Falha no envio';
+            }
+            return;
+        }
+
+        const { data: publicUrlData } = _supabase.storage
+            .from('banners')
+            .getPublicUrl(filePath);
+
+        const publicUrl = publicUrlData.publicUrl;
+        console.log(`✅ Upload bem-sucedido. URL pública: ${publicUrl}`);
+
+        if (urlInput) {
+            urlInput.value = publicUrl;
+        }
+        updateBannerPreview(type);
+
+        toast("Upload concluído com sucesso!", "success");
+    } catch (err) {
+        console.error("Exceção durante upload do banner:", err);
+        toast("Erro técnico durante o upload.", "error");
+    } finally {
+        if (uploadBtn) {
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = originalBtnText;
+        }
+    }
+}
+
 
 
 function closeBookingModal() {

@@ -290,8 +290,15 @@
                                 <span class="toggle-label">Ativar este banner</span>
                             </div>
                             <div class="form-row">
-                                <label for="top-banner-url">URL da Imagem</label>
-                                <input type="url" id="top-banner-url" placeholder="https://exemplo.com/imagem.png" oninput="updateBannerPreview('top')">
+                                <label>Imagem do Banner</label>
+                                <div class="upload-group" style="display: flex; gap: 0.75rem; align-items: center;">
+                                    <input type="file" id="top-banner-file" accept="image/*" style="display: none;" onchange="handleBannerFileUpload('top')">
+                                    <button class="btn btn-secondary" id="top-banner-upload-btn" onclick="document.getElementById('top-banner-file').click()" type="button" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                                        📁 Carregar Imagem
+                                    </button>
+                                    <span id="top-banner-filename" style="font-size: 0.8rem; color: var(--text-secondary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 150px;">Nenhum arquivo</span>
+                                </div>
+                                <input type="url" id="top-banner-url" readonly style="background: rgba(0,0,0,0.03); cursor: not-allowed; margin-top: 0.5rem; font-size: 0.8rem; height: 35px;" placeholder="URL da imagem (carregada após upload)">
                             </div>
                             <div class="form-row">
                                 <label for="top-banner-link">Link de Destino (Opcional)</label>
@@ -331,8 +338,15 @@
                                 <span class="toggle-label">Ativar este banner</span>
                             </div>
                             <div class="form-row">
-                                <label for="sidebar-banner-url">URL da Imagem</label>
-                                <input type="url" id="sidebar-banner-url" placeholder="https://exemplo.com/imagem.png" oninput="updateBannerPreview('sidebar')">
+                                <label>Imagem do Banner</label>
+                                <div class="upload-group" style="display: flex; gap: 0.75rem; align-items: center;">
+                                    <input type="file" id="sidebar-banner-file" accept="image/*" style="display: none;" onchange="handleBannerFileUpload('sidebar')">
+                                    <button class="btn btn-secondary" id="sidebar-banner-upload-btn" onclick="document.getElementById('sidebar-banner-file').click()" type="button" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                                        📁 Carregar Imagem
+                                    </button>
+                                    <span id="sidebar-banner-filename" style="font-size: 0.8rem; color: var(--text-secondary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 150px;">Nenhum arquivo</span>
+                                </div>
+                                <input type="url" id="sidebar-banner-url" readonly style="background: rgba(0,0,0,0.03); cursor: not-allowed; margin-top: 0.5rem; font-size: 0.8rem; height: 35px;" placeholder="URL da imagem (carregada após upload)">
                             </div>
                             <div class="form-row">
                                 <label for="sidebar-banner-link">Link de Destino (Opcional)</label>
