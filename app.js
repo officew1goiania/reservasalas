@@ -646,6 +646,21 @@ function applySidebarBannerConfig(config) {
 async function loadBannersConfigPage() {
     try {
         console.log("📂 Carregando página administrativa de banners...");
+
+        // Verificar se o bucket 'banners' existe no Supabase Storage
+        try {
+            const { data: buckets, error: bucketsErr } = await _supabase.storage.listBuckets();
+            if (bucketsErr) {
+                console.warn("Erro ao listar buckets de storage:", bucketsErr.message);
+            } else {
+                const bucketExists = buckets && buckets.some(b => b.name === 'banners');
+                if (!bucketExists) {
+                    toast("Aviso: O bucket público 'banners' não foi criado no Supabase Storage. Crie-o para habilitar upload.", "error");
+                }
+            }
+        } catch (storageErr) {
+            console.warn("Não foi possível validar a existência de buckets de storage:", storageErr);
+        }
         
         const { data: settings, error } = await _supabase
             .from('app_settings')
@@ -769,9 +784,20 @@ async function handleBannerFileUpload(type) {
     const urlInput = document.getElementById(`${type}-banner-url`);
     const uploadBtn = document.getElementById(`${type}-banner-upload-btn`);
 
-    if (!fileInput || !fileInput.files || fileInput.files.length === 0) return;
+    console.log(`[Upload] Iniciando processo para o tipo: ${type}`);
+
+    if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        console.warn("[Upload] Nenhum arquivo selecionado ou inputs não encontrados.");
+        return;
+    }
 
     const file = fileInput.files[0];
+    console.log("[Upload] Detalhes do arquivo selecionado:", {
+        nome: file.name,
+        tamanho: file.size,
+        tipo: file.type
+    });
+
     if (filenameLabel) {
         filenameLabel.textContent = file.name;
     }
@@ -786,21 +812,29 @@ async function handleBannerFileUpload(type) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${type}_banner_${Date.now()}.${fileExt}`;
         const filePath = `${fileName}`;
+        console.log(`[Upload] Preparando upload para o caminho: ${filePath}`);
 
+        if (!_supabase) {
+            console.error("[Upload] Supabase client não está inicializado!");
+            throw new Error("Cliente Supabase não inicializado.");
+        }
+
+        console.log("[Upload] Chamando _supabase.storage.from('banners').upload...");
         const { data, error } = await _supabase.storage
             .from('banners')
-            .upload(filePath, file);
+            .upload(filePath, file, {
+                cacheControl: '3600',
+                upsert: false
+            });
+
+        console.log("[Upload] Chamada finalizada. Resposta do Supabase:", { data, error });
 
         if (error) {
-            console.error("Erro ao enviar arquivo para o Supabase Storage:", error);
+            console.error("[Upload] Erro retornado pelo Supabase Storage:", error);
             if (error.message && error.message.includes('bucket')) {
                 toast("Erro: Certifique-se de que o bucket público 'banners' foi criado no Supabase.", "error");
             } else {
                 toast("Erro no upload: " + error.message, "error");
-            }
-            if (uploadBtn) {
-                uploadBtn.disabled = false;
-                uploadBtn.textContent = originalBtnText;
             }
             if (filenameLabel) {
                 filenameLabel.textContent = 'Falha no envio';
@@ -808,23 +842,29 @@ async function handleBannerFileUpload(type) {
             return;
         }
 
+        console.log("[Upload] Obtendo URL pública do arquivo...");
         const { data: publicUrlData } = _supabase.storage
             .from('banners')
             .getPublicUrl(filePath);
 
         const publicUrl = publicUrlData.publicUrl;
-        console.log(`✅ Upload bem-sucedido. URL pública: ${publicUrl}`);
+        console.log(`[Upload] URL pública obtida: ${publicUrl}`);
 
         if (urlInput) {
             urlInput.value = publicUrl;
+            console.log("[Upload] URL input atualizada com sucesso.");
         }
         updateBannerPreview(type);
 
         toast("Upload concluído com sucesso!", "success");
     } catch (err) {
-        console.error("Exceção durante upload do banner:", err);
-        toast("Erro técnico durante o upload.", "error");
+        console.error("[Upload] Exceção crítica durante upload do banner:", err);
+        toast("Erro técnico durante o upload: " + (err.message || err), "error");
+        if (filenameLabel) {
+            filenameLabel.textContent = 'Erro no envio';
+        }
     } finally {
+        console.log("[Upload] Executando bloco finally para restaurar o estado do botão.");
         if (uploadBtn) {
             uploadBtn.disabled = false;
             uploadBtn.textContent = originalBtnText;
