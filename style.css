@@ -3,35 +3,40 @@
    Glassmorphism · Gradientes · Micro-animações
    =================================================== */
 
-/* ---------- Tokens ---------- */
+/* ---------- Tokens (Modo Dark Premium) ---------- */
 :root {
-    --bg-deep: #f8fafc;
-    --bg-surface: #ffffff;
-    --bg-card: rgba(0, 0, 0, 0.03);
-    --bg-glass: rgba(255, 255, 255, 0.8);
+    --bg-deep: #0f172a;       /* Slate 900 - Fundo principal escuro */
+    --bg-surface: #1e293b;    /* Slate 800 - Fundo de cartões e sidebar */
+    --bg-card: rgba(255, 255, 255, 0.03); /* Brilho sutil para cards */
+    --bg-glass: rgba(30, 41, 59, 0.85);   /* Vidro escuro translúcido */
+    --bg-input: rgba(255, 255, 255, 0.04);
+    --bg-input-focus: rgba(255, 255, 255, 0.08);
+    --bg-hover: rgba(255, 255, 255, 0.04);
+    --bg-hover-heavy: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.15);
 
-    --teal: #0d9488;
-    --teal-light: #0f766e;
+    --teal: #14b8a6;          /* Teal 500 - Vibrante */
+    --teal-light: #2dd4bf;    /* Teal 400 - Glow */
     --gold: #d4a853;
     --gold-light: #b48530;
 
     --accent: var(--teal);
-    --accent-glow: rgba(13, 148, 136, 0.2);
-    --gold-glow: rgba(212, 168, 83, 0.2);
+    --accent-glow: rgba(20, 184, 166, 0.15);
+    --gold-glow: rgba(212, 168, 83, 0.15);
 
-    --text-primary: #1f2937;
-    --text-secondary: #4b5563;
-    --text-muted: #9ca3af;
+    --text-primary: #f8fafc;   /* Slate 50 - Texto principal quase branco */
+    --text-secondary: #cbd5e1; /* Slate 300 - Texto secundário cinza claro */
+    --text-muted: #64748b;     /* Slate 500 - Texto silenciado cinza médio */
 
-    --border: rgba(0, 0, 0, 0.12);
-    --border-focus: rgba(13, 148, 136, 0.5);
+    --border: rgba(255, 255, 255, 0.09);  /* Borda escura translúcida sutil */
+    --border-focus: rgba(20, 184, 166, 0.6);
 
     --radius-sm: 8px;
     --radius-md: 14px;
     --radius-lg: 20px;
 
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.08);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 8px 30px rgba(0, 0, 0, 0.5);
     --shadow-glow: 0 0 30px var(--accent-glow);
 
     --transition: 0.25s cubic-bezier(.4, 0, .2, 1);
@@ -453,7 +458,7 @@ select,
 textarea {
     width: 100%;
     padding: 0.8rem 0.8rem 0.8rem 2.6rem;
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--bg-input);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     font-size: 0.95rem;
@@ -467,7 +472,7 @@ input:focus,
 select:focus,
 textarea:focus {
     border-color: var(--border-focus);
-    background: rgba(0, 0, 0, 0.07);
+    background: var(--bg-input-focus);
     box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
@@ -560,13 +565,13 @@ label {
 }
 
 .btn-secondary:hover {
-    background: rgba(0, 0, 0, 0.08);
-    border-color: rgba(0, 0, 0, 0.15);
+    background: var(--bg-hover-heavy);
+    border-color: var(--border-hover);
     color: var(--text-primary);
 }
 
 .btn-google {
-    background: rgba(0, 0, 0, 0.08);
+    background: var(--bg-hover-heavy);
     color: var(--text-primary);
     border: 1px solid var(--border);
     gap: 0.6rem;
@@ -868,8 +873,8 @@ label {
 .fc {
     --fc-border-color: var(--border);
     --fc-page-bg-color: transparent;
-    --fc-neutral-bg-color: rgba(0, 0, 0, 0.03);
-    --fc-today-bg-color: rgba(13, 148, 136, 0.08);
+    --fc-neutral-bg-color: var(--bg-card);
+    --fc-today-bg-color: rgba(20, 184, 166, 0.08);
     --fc-event-border-color: transparent;
 }
 
@@ -880,7 +885,7 @@ label {
 }
 
 .fc .fc-button {
-    background: rgba(0, 0, 0, 0.05) !important;
+    background: var(--bg-hover) !important;
     border: 1px solid var(--border) !important;
     color: var(--text-secondary) !important;
     font-family: var(--font) !important;
@@ -892,7 +897,7 @@ label {
 }
 
 .fc .fc-button:hover {
-    background: rgba(0, 0, 0, 0.1) !important;
+    background: var(--bg-hover-heavy) !important;
     color: var(--text-primary) !important;
 }
 
