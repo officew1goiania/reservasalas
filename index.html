@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.4"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
     <link rel="icon" href="data:,">
-    <link rel="stylesheet" href="style.css?v=10">
+    <link rel="stylesheet" href="style.css?v=13">
 </head>
 
 <body>
@@ -172,16 +172,12 @@
                     style="display:none;">
                     <span class="nav-icon">👥</span> Usuários
                 </button>
-                <button class="nav-item" data-page="banners" id="nav-banners" onclick="navigateTo('banners')"
-                    style="display:none;">
-                    <span class="nav-icon">📢</span> Banners
-                </button>
             </nav>
 
             <!-- Banner Lateral -->
-            <div id="sidebar-banner-container" class="sidebar-banner-container hidden">
-                <a id="sidebar-banner-link" href="#" target="_blank">
-                    <img id="sidebar-banner-img" src="" alt="Banner Lateral">
+            <div id="sidebar-banner-container" class="sidebar-banner-container">
+                <a id="sidebar-banner-link" href="#">
+                    <img id="sidebar-banner-img" src="banners/lateral.jpg" alt="Banner Lateral">
                 </a>
             </div>
 
@@ -217,9 +213,9 @@
                 <div class="page-header">
                     <h1>Agenda</h1>
                     <!-- Banner do Topo (Agenda) -->
-                    <div id="agenda-top-banner-container" class="top-banner-container hidden">
-                        <a id="agenda-top-banner-link" href="#" target="_blank">
-                            <img id="agenda-top-banner-img" src="" alt="Banner Agenda">
+                    <div id="agenda-top-banner-container" class="top-banner-container">
+                        <a id="agenda-top-banner-link" href="#">
+                            <img id="agenda-top-banner-img" src="banners/superior.jpg" alt="Banner Agenda">
                         </a>
                     </div>
                     <div class="header-actions">
@@ -264,111 +260,7 @@
                 </div>
             </div>
 
-            <!-- ====== PAGE: BANNERS ====== -->
-            <div id="page-banners" class="page-content hidden">
-                <div class="page-header">
-                    <h1>Gerenciamento de Banners</h1>
-                    <p class="subtitle">Anúncios, eventos e avisos importantes</p>
-                </div>
 
-                <div class="banners-grid">
-                    <!-- CARD 1: BANNER TOPO -->
-                    <div class="banner-card">
-                        <div class="banner-card-header">
-                            <span class="banner-icon">🔝</span>
-                            <div class="banner-title-group">
-                                <h3>Banner do Topo (Agenda)</h3>
-                                <span class="banner-badge">Topo da Agenda</span>
-                            </div>
-                        </div>
-                        <div class="banner-card-body">
-                            <div class="form-row-toggle">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="top-banner-active">
-                                    <span class="slider"></span>
-                                </label>
-                                <span class="toggle-label">Ativar este banner</span>
-                            </div>
-                            <div class="form-row">
-                                <label>Imagem do Banner</label>
-                                <div class="upload-group" style="display: flex; gap: 0.75rem; align-items: center;">
-                                    <input type="file" id="top-banner-file" accept="image/*" style="display: none;" onchange="handleBannerFileUpload('top')">
-                                    <button class="btn btn-secondary" id="top-banner-upload-btn" onclick="document.getElementById('top-banner-file').click()" type="button" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
-                                        📁 Carregar Imagem
-                                    </button>
-                                    <span id="top-banner-filename" style="font-size: 0.8rem; color: var(--text-secondary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 150px;">Nenhum arquivo</span>
-                                </div>
-                                <input type="url" id="top-banner-url" readonly style="background: rgba(0,0,0,0.03); cursor: not-allowed; margin-top: 0.5rem; font-size: 0.8rem; height: 35px;" placeholder="URL da imagem (carregada após upload)">
-                            </div>
-                            <div class="form-row">
-                                <label for="top-banner-link">Link de Destino (Opcional)</label>
-                                <input type="url" id="top-banner-link" placeholder="https://exemplo.com/pagina-destino">
-                            </div>
-                            <div class="banner-info">
-                                ℹ️ <strong>Medida sugerida:</strong> 600x80 pixels (ou proporção horizontal equivalente).
-                            </div>
-                            <div class="banner-preview-box">
-                                <span class="preview-title">Visualização Prévia:</span>
-                                <div class="preview-container horizontal-preview">
-                                    <img id="top-banner-preview" class="hidden" src="" alt="Preview Topo">
-                                    <div id="top-banner-preview-placeholder" class="preview-placeholder">Nenhuma imagem carregada</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="banner-card-footer">
-                            <button class="btn btn-primary btn-full" onclick="saveSingleBanner('top')">Salvar Banner do Topo</button>
-                        </div>
-                    </div>
-
-                    <!-- CARD 2: BANNER LATERAL -->
-                    <div class="banner-card">
-                        <div class="banner-card-header">
-                            <span class="banner-icon">👈</span>
-                            <div class="banner-title-group">
-                                <h3>Banner Lateral</h3>
-                                <span class="banner-badge">Rodapé da Barra Lateral</span>
-                            </div>
-                        </div>
-                        <div class="banner-card-body">
-                            <div class="form-row-toggle">
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="sidebar-banner-active">
-                                    <span class="slider"></span>
-                                </label>
-                                <span class="toggle-label">Ativar este banner</span>
-                            </div>
-                            <div class="form-row">
-                                <label>Imagem do Banner</label>
-                                <div class="upload-group" style="display: flex; gap: 0.75rem; align-items: center;">
-                                    <input type="file" id="sidebar-banner-file" accept="image/*" style="display: none;" onchange="handleBannerFileUpload('sidebar')">
-                                    <button class="btn btn-secondary" id="sidebar-banner-upload-btn" onclick="document.getElementById('sidebar-banner-file').click()" type="button" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
-                                        📁 Carregar Imagem
-                                    </button>
-                                    <span id="sidebar-banner-filename" style="font-size: 0.8rem; color: var(--text-secondary); text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 150px;">Nenhum arquivo</span>
-                                </div>
-                                <input type="url" id="sidebar-banner-url" readonly style="background: rgba(0,0,0,0.03); cursor: not-allowed; margin-top: 0.5rem; font-size: 0.8rem; height: 35px;" placeholder="URL da imagem (carregada após upload)">
-                            </div>
-                            <div class="form-row">
-                                <label for="sidebar-banner-link">Link de Destino (Opcional)</label>
-                                <input type="url" id="sidebar-banner-link" placeholder="https://exemplo.com/pagina-destino">
-                            </div>
-                            <div class="banner-info">
-                                ℹ️ <strong>Medida sugerida:</strong> 230x230 pixels (ou proporção quadrada equivalente).
-                            </div>
-                            <div class="banner-preview-box">
-                                <span class="preview-title">Visualização Prévia:</span>
-                                <div class="preview-container square-preview">
-                                    <img id="sidebar-banner-preview" class="hidden" src="" alt="Preview Lateral">
-                                    <div id="sidebar-banner-preview-placeholder" class="preview-placeholder">Nenhuma imagem carregada</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="banner-card-footer">
-                            <button class="btn btn-primary btn-full" onclick="saveSingleBanner('sidebar')">Salvar Banner Lateral</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- ====== PAGE: USUÁRIOS ====== -->
             <div id="page-usuarios" class="page-content hidden">
@@ -582,7 +474,7 @@
         </div>
     </div>
 
-    <script src="app.js?v=10"></script>
+    <script src="app.js?v=13"></script>
     <script>
     // ===== LOGO ANIMATION INITIALIZER =====
     (function () {
