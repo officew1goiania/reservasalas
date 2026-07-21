@@ -247,10 +247,10 @@ body {
     animation: fadeIn 1.5s ease both 0.5s;
 }
 
-/* ---------- Coluna Direita: Painel de Login (FUNDO CLARO) ---------- */
+/* ---------- Coluna Direita: Painel de Login (FUNDO ESCURO) ---------- */
 .login-sidebar-panel {
     width: 460px;
-    background: rgba(255, 255, 255, 0.88);
+    background: rgba(15, 23, 42, 0.85);
     backdrop-filter: blur(35px);
     -webkit-backdrop-filter: blur(35px);
     border-left: 1px solid var(--border);
@@ -261,7 +261,7 @@ body {
     padding: 4rem 3rem;
     position: relative;
     z-index: 10;
-    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.04);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.35);
     animation: slideLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -314,9 +314,9 @@ body {
 }
 
 .login-sidebar-panel .error-message {
-    background: rgba(239, 68, 68, 0.08);
+    background: rgba(239, 68, 68, 0.1);
     border: 1px solid rgba(239, 68, 68, 0.25);
-    color: #b91c1c;
+    color: #f87171;
     padding: 0.65rem 1rem;
     border-radius: var(--radius-sm);
     font-size: 0.85rem;
@@ -327,12 +327,6 @@ body {
 
 .login-sidebar-panel .error-message.visible {
     display: block;
-}
-
-.login-sidebar-panel .btn-google:hover {
-    background: rgba(0, 0, 0, 0.04);
-    border-color: rgba(0, 0, 0, 0.15);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
 /* ---------- Keyframes & Responsividade ---------- */
@@ -428,7 +422,7 @@ body {
         width: 100%;
         flex: 1;
         padding: 3rem 1.5rem;
-        background: rgba(255, 255, 255, 0.94);
+        background: rgba(15, 23, 42, 0.96);
         box-shadow: none;
         border-left: none;
         border-top: 1px solid var(--border);
