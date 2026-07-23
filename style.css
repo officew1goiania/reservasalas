@@ -1605,26 +1605,6 @@ table.users-table tbody tr:last-child td {
 
 /* Brand logo SVG removed */
 
-/* Login Selos */
-.login-selos {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    margin-top: -0.5rem;
-}
-
-.selo-badge {
-    height: 38px;
-    width: auto;
-    object-fit: contain;
-    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.12));
-    transition: transform var(--transition);
-}
-
-.selo-badge:hover {
-    transform: scale(1.1) translateY(-2px);
-}
 
 /* Sidebar Brand Selos */
 .sidebar-brand-text {
@@ -1633,43 +1613,7 @@ table.users-table tbody tr:last-child td {
     gap: 0.25rem;
 }
 
-.sidebar-selos {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
 
-.selo-sidebar {
-    height: 18px;
-    width: auto;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
-    transition: transform var(--transition);
-}
 
-.selo-sidebar:hover {
-    transform: scale(1.15);
-}
-
-/* Mobile Header Selos */
-.mobile-selos {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding-right: 0.5rem;
-}
-
-.selo-mobile {
-    height: 22px;
-    width: auto;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
-    transition: transform var(--transition);
-}
-
-.selo-mobile:hover {
-    transform: scale(1.1);
-}
 
 /* Banners system styling removed */
