@@ -1,5 +1,5 @@
 /* ===================================================
-   W1 Goiânia - Design System (Dark Premium)
+   Office Goiânia - Design System (Dark Premium)
    Glassmorphism · Gradientes · Micro-animações
    =================================================== */
 
@@ -171,71 +171,7 @@ body {
     padding: 3rem;
 }
 
-.login-bg-logo-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 75%;
-    max-width: 700px;
-    height: auto;
-    z-index: 0;
-    pointer-events: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0.85;
-    animation: floatLogo 12s ease-in-out infinite alternate;
-}
-
-.login-bg-logo-svg {
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-}
-
-/* Transições e escala do Logo Central */
-.logo-group {
-    transform-origin: 500px 248px;
-    animation: shrinkLogo 1.5s cubic-bezier(0.25, 1, 0.5, 1) 4s forwards;
-}
-
-.login-bg-logo-path {
-    fill: none;
-    stroke: url(#logo-grad);
-    stroke-width: 5px;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    opacity: 0;
-    filter: drop-shadow(0 0 6px rgba(13, 148, 136, 0.4)) drop-shadow(0 0 16px rgba(212, 168, 83, 0.2));
-}
-
-/* Padrão Repetitivo de Fundo (Watermark Constellation) */
-.pattern-group {
-    opacity: 0;
-    transform: scale(0.95);
-    transform-origin: 500px 248px;
-    animation: fadeInPattern 2.5s cubic-bezier(0.25, 1, 0.5, 1) 4.5s forwards;
-}
-
-.pattern-group use {
-    fill: none;
-    stroke: url(#logo-grad);
-    stroke-width: 3.5px;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.pattern-group circle {
-    fill: #d4a853 !important;
-}
-
-@keyframes fadeInPattern {
-    to {
-        opacity: 0.16;
-        transform: scale(1);
-    }
-}
+/* Logo styling removed */
 
 .visual-panel-footer {
     position: absolute;
@@ -271,23 +207,7 @@ body {
     text-align: center;
 }
 
-.login-sidebar-panel .brand-icon {
-    width: 72px;
-    height: 72px;
-    margin: 0 auto 1.5rem;
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
-}
-
-.login-sidebar-panel .brand-icon:hover {
-    transform: scale(1.05);
-}
+/* Brand icon styling removed */
 
 .login-sidebar-panel h1 {
     font-size: 2.1rem;
@@ -330,50 +250,7 @@ body {
 }
 
 /* ---------- Keyframes & Responsividade ---------- */
-@keyframes drawBgLogo {
-    0% {
-        stroke-dashoffset: var(--logo-len, 4000);
-        opacity: 0;
-    }
-    15% {
-        opacity: 0.75;
-    }
-    100% {
-        stroke-dashoffset: 0;
-        opacity: 0.7;
-    }
-}
-
-@keyframes shrinkLogo {
-    to {
-        transform: scale(0.48);
-    }
-}
-
-
-
-@keyframes pulseGlow {
-    0% {
-        filter: drop-shadow(0 0 8px rgba(13, 148, 136, 0.7)) drop-shadow(0 0 20px rgba(212, 168, 83, 0.4));
-        opacity: 0.7;
-    }
-    100% {
-        filter: drop-shadow(0 0 18px rgba(13, 148, 136, 1)) drop-shadow(0 0 35px rgba(212, 168, 83, 0.6));
-        opacity: 0.85;
-    }
-}
-
-@keyframes floatLogo {
-    0% {
-        transform: translate(-50%, -50%) scale(1) rotate(0deg);
-    }
-    50% {
-        transform: translate(-50%, -48%) scale(1.03) rotate(0.4deg);
-    }
-    100% {
-        transform: translate(-50%, -52%) scale(0.97) rotate(-0.4deg);
-    }
-}
+/* Logo animation keyframes removed */
 
 @keyframes slideLeft {
     from {
@@ -692,18 +569,7 @@ label {
     gap: 0.75rem;
 }
 
-.sidebar-brand .brand-dot {
-    width: 40px;
-    height: 40px;
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
+/* Sidebar brand dot removed */
 
 .sidebar-brand h2 {
     font-size: 1.1rem;
@@ -1737,13 +1603,7 @@ table.users-table tbody tr:last-child td {
    LOGO SVG AND STAMPS (SELOS) STYLE
    =================================================== */
 
-.brand-logo-svg {
-    width: 70%;
-    height: 70%;
-    object-fit: contain;
-    fill: var(--teal);
-    transition: fill var(--transition);
-}
+/* Brand logo SVG removed */
 
 /* Login Selos */
 .login-selos {
@@ -1812,287 +1672,4 @@ table.users-table tbody tr:last-child td {
     transform: scale(1.1);
 }
 
-/* ===========================================
-   BANNERS & BANNER MANAGEMENT SYSTEM
-   =========================================== */
-
-/* Top Banner container (Agenda page) */
-.top-banner-container {
-    flex: 1;
-    margin: 0 2rem;
-    max-width: 500px;
-    height: 70px;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--border);
-    background: var(--bg-glass);
-    transition: all var(--transition);
-}
-
-.top-banner-container a {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-
-.top-banner-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.3s ease;
-}
-
-.top-banner-container img:hover {
-    transform: scale(1.02);
-}
-
-/* Sidebar Banner container */
-.sidebar-banner-container {
-    padding: 0 0.75rem;
-    margin-bottom: 1rem;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    transition: all var(--transition);
-}
-
-.sidebar-banner-container a {
-    display: block;
-    width: 100%;
-    border-radius: var(--radius-md);
-    overflow: hidden;
-    border: 1px solid var(--border);
-    background: var(--bg-glass);
-}
-
-.sidebar-banner-container img {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.3s ease;
-}
-
-.sidebar-banner-container img:hover {
-    transform: scale(1.03);
-}
-
-/* Banners Page Layout & Grid */
-.banners-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 2rem;
-    margin-top: 1.5rem;
-}
-
-.banner-card {
-    background: var(--bg-glass);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-    transition: transform var(--transition), box-shadow var(--transition);
-}
-
-.banner-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-}
-
-.banner-card-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    background: rgba(0, 0, 0, 0.02);
-}
-
-.banner-icon {
-    font-size: 1.8rem;
-}
-
-.banner-title-group {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.banner-title-group h3 {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.banner-badge {
-    font-size: 0.7rem;
-    font-weight: 500;
-    color: var(--teal-light);
-    background: rgba(13, 148, 136, 0.08);
-    padding: 2px 8px;
-    border-radius: 20px;
-    align-self: flex-start;
-    text-transform: uppercase;
-}
-
-.banner-card-body {
-    padding: 1.5rem;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-}
-
-.banner-card-footer {
-    padding: 1.25rem 1.5rem;
-    border-top: 1px solid var(--border);
-    background: rgba(0, 0, 0, 0.01);
-}
-
-/* Custom Toggle Switch checkbox */
-.form-row-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.5rem;
-}
-
-.toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 46px;
-    height: 24px;
-}
-
-.toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.1);
-    transition: .3s;
-    border-radius: 24px;
-    border: 1px solid var(--border);
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .3s;
-    border-radius: 50%;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-}
-
-.toggle-switch input:checked + .slider {
-    background-color: var(--teal);
-    border-color: var(--teal);
-}
-
-.toggle-switch input:checked + .slider:before {
-    transform: translateX(22px);
-}
-
-.toggle-label {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--text-primary);
-}
-
-/* Helper Banner information panel */
-.banner-info {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    background: rgba(0, 0, 0, 0.03);
-    padding: 0.75rem;
-    border-radius: var(--radius-md);
-    border-left: 3px solid var(--gold);
-}
-
-/* Banner Previews */
-.banner-preview-box {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-top: auto;
-}
-
-.preview-title {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-muted);
-}
-
-.preview-container {
-    border: 1px dashed var(--border);
-    border-radius: var(--radius-md);
-    background: rgba(0, 0, 0, 0.02);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-}
-
-.horizontal-preview {
-    height: 60px;
-    width: 100%;
-}
-
-.square-preview {
-    width: 120px;
-    height: 120px;
-    margin: 0 auto;
-}
-
-.preview-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.preview-container img.hidden {
-    display: none;
-}
-
-.preview-placeholder {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    text-align: center;
-    padding: 1rem;
-}
-
-/* Responsive adjustment for banners */
-@media (max-width: 768px) {
-    .top-banner-container {
-        margin: 1rem 0;
-        max-width: 100%;
-        width: 100%;
-        height: 60px;
-    }
-    
-    .sidebar-banner-container {
-        padding: 0 1rem;
-        margin-bottom: 1.5rem;
-    }
-}
+/* Banners system styling removed */

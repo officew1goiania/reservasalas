@@ -1,4 +1,4 @@
-//  W1 Goiânia – Reservas  (app.js)
+//  Office Goiânia – Reservas  (app.js)
 //  v8 - Fix Recursion Resilience
 // =============================================
 console.log("🚀 App loading - Version 8");
